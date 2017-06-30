@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+use Amp\Loop;
+use Kelunik\Mellon\Mellon;
+use Kelunik\Mellon\Plugins\Canon;
+
+require __DIR__ . "/../vendor/autoload.php";
+
+Loop::run(function () {
+    $mellon = new Mellon(getenv("MELLON_CONNECTION"), explode(",", getenv("MELLON_CHANNELS") ?: "") ?: [], [
+        new Canon,
+    ]);
+
+    $mellon->start();
+});
