@@ -59,6 +59,31 @@ class GitHubEvents extends Plugin {
                             $this->mellon->sendMessage($channel, $message);
                         }
                     }
+                } else if ($event["type"] === "IssueCommentEvent") {
+                    if ($event["payload"]["action"] === "created") {
+                        $message = \sprintf(
+                            "%s just commented on %s.",
+                            $event["payload"]["comment"]["user"]["login"],
+                            $event["payload"]["comment"]["html_url"]
+                        );
+
+                        foreach ($this->getChannels() as $channel) {
+                            $this->mellon->sendMessage($channel, $message);
+                        }
+                    }
+                } else if ($event["type"] === "IssuesEvent") {
+                    if ($event["payload"]["action"] === "opened") {
+                        $message = \sprintf(
+                            "%s opened an issue @ %s (%s).",
+                            $event["payload"]["issue"]["user"]["login"],
+                            $event["payload"]["issue"]["html_url"],
+                            $event["payload"]["issue"]["title"]
+                        );
+
+                        foreach ($this->getChannels() as $channel) {
+                            $this->mellon->sendMessage($channel, $message);
+                        }
+                    }
                 }
             }
 
