@@ -35,11 +35,11 @@ class GitHubEvents extends Plugin {
                 return;
             }
 
-            $events = \json_decode($body, true);
+            $events = \array_reverse(\json_decode($body, true));
 
             foreach ($events as $event) {
-                if ($event["id"] < $this->lastId) {
-                    break;
+                if ($event["id"] <= $this->lastId) {
+                    continue;
                 }
 
                 $this->logger->debug("Processing GitHub event " . $event["id"]);
