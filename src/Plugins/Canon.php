@@ -106,7 +106,7 @@ class Canon extends Plugin {
     }
 
     private function listTopics(Command $command): ?string {
-        return \implode(", ", \array_keys($this->canons));
+        return $this->canons ? \implode(", ", \array_keys($this->canons)) : "No topics exist yet.";
     }
 
     private function getTopic(Command $command): ?string {
