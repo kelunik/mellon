@@ -4,12 +4,14 @@
 use Amp\Loop;
 use Kelunik\Mellon\Mellon;
 use Kelunik\Mellon\Plugins\Canon;
+use Kelunik\Mellon\Plugins\GitHubEvents;
 
 require __DIR__ . "/../vendor/autoload.php";
 
 Loop::run(function () {
     $mellon = new Mellon(getenv("MELLON_CONNECTION"), explode(",", getenv("MELLON_CHANNELS") ?: "") ?: [], [
-        new Canon,
+        Canon::class,
+        GitHubEvents::class,
     ]);
 
     $mellon->start();

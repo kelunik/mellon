@@ -2,12 +2,15 @@
 
 namespace Kelunik\Mellon;
 
+use Amp\Artax\BasicClient;
 use Amp\Dns;
 use Amp\ReactAdapter\ReactAdapter;
 use Amp\Uri\Uri;
+use Auryn\Injector;
 use Kelunik\Mellon\Chat\Channel;
 use Kelunik\Mellon\Chat\Command;
 use Kelunik\Mellon\Chat\Message;
+use Kelunik\Mellon\Plugins\Plugin;
 use Phergie\Irc\Bot\React\AbstractPlugin;
 use Phergie\Irc\Bot\React\Bot;
 use Phergie\Irc\Bot\React\EventQueueInterface;
@@ -17,6 +20,7 @@ use Phergie\Irc\Connection;
 use Phergie\Irc\ConnectionInterface;
 use Phergie\Irc\Event\UserEventInterface;
 use Phergie\Irc\Plugin\React\AutoJoin\Plugin as AutoJoinPlugin;
+use Psr\Log\LoggerInterface;
 use React\Promise\Promise;
 use function Amp\asyncCall;
 use function Amp\call;
@@ -50,8 +54,22 @@ class Mellon extends AbstractPlugin {
         $this->bot = new Bot;
         $this->bot->setConfig($config);
 
+        $injector = new Injector;
+        $injector->alias(\Amp\Artax\Client::class, BasicClient::class);
+        $injector->alias(LoggerInterface::class, get_class($this->bot->getLogger()));
+        $injector->share(new BasicClient);
+        $injector->share($this);
+        $injector->share($this->bot->getLogger());
+        $injector->defineParam("githubOrg", "amphp");
+
         foreach ($plugins as $plugin) {
+            /** @var Plugin $plugin */
+            $plugin = $injector->make($plugin);
             $endpoints = $plugin->getEndpoints();
+
+            foreach ($channels as $channel) {
+                $plugin->enableForChannel(new Channel($channel));
+            }
 
             foreach ($endpoints as $command => $endpoint) {
                 if (isset($this->plugins[$command])) {

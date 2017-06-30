@@ -21,6 +21,7 @@
         "amphp/dns": "^0.9.0",
         "phergie/phergie-irc-plugin-react-nickserv": "^2.0",
         "phergie/phergie-irc-plugin-react-autojoin": "^2.0",
-        "rdlowrey/auryn": "^1.4"
+        "rdlowrey/auryn": "^1.4",
+        "amphp/artax": "dev-master"
     }
 }
