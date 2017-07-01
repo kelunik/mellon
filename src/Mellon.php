@@ -4,6 +4,8 @@ namespace Kelunik\Mellon;
 
 use Amp\Artax\BasicClient;
 use Amp\Dns;
+use Amp\Loop;
+use Amp\MultiReasonException;
 use Amp\ReactAdapter\ReactAdapter;
 use Amp\Uri\Uri;
 use Auryn\Injector;
@@ -64,6 +66,21 @@ class Mellon extends AbstractPlugin {
         $injector->share($this);
         $injector->share($this->bot->getLogger());
         $injector->defineParam("githubOrg", "amphp");
+
+        Loop::setErrorHandler(function (\Throwable $error) {
+            $errors = [$error];
+
+            while ($error = array_shift($errors)) {
+                $this->bot->getLogger()->critical("An uncaught exception: " . $error->getMessage());
+                $this->bot->getLogger()->critical($error->getTraceAsString());
+
+                if ($error instanceof MultiReasonException) {
+                    $errors[] = $error->getReasons();
+                } else {
+                    $errors[] = $error;
+                }
+            }
+        });
 
         $storage = new FileKeyValueStorage(__DIR__ . "/../data/mellon.json");
 
