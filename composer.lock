@@ -244,16 +244,16 @@
         },
         {
             "name": "amphp/dns",
-            "version": "v0.9.0",
+            "version": "v0.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/dns.git",
-                "reference": "216725196676dfc63a8833375eb4ac4289e06c83"
+                "reference": "c1c552d752c7b5a844dc73556162e8024224928f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/dns/zipball/216725196676dfc63a8833375eb4ac4289e06c83",
-                "reference": "216725196676dfc63a8833375eb4ac4289e06c83",
+                "url": "https://api.github.com/repos/amphp/dns/zipball/c1c552d752c7b5a844dc73556162e8024224928f",
+                "reference": "c1c552d752c7b5a844dc73556162e8024224928f",
                 "shasum": ""
             },
             "require": {
@@ -317,7 +317,7 @@
                 "dns",
                 "resolve"
             ],
-            "time": "2017-06-24T06:14:50+00:00"
+            "time": "2017-07-01T10:19:09+00:00"
         },
         {
             "name": "amphp/file",
@@ -387,16 +387,16 @@
         },
         {
             "name": "amphp/parallel",
-            "version": "v0.1.6",
+            "version": "v0.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/parallel.git",
-                "reference": "8ecfed57bfb258a219ddfa7ebaac453caf735bc4"
+                "reference": "c22d2838c7f8a90d5c692c7c3c480b312e162d9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/parallel/zipball/8ecfed57bfb258a219ddfa7ebaac453caf735bc4",
-                "reference": "8ecfed57bfb258a219ddfa7ebaac453caf735bc4",
+                "url": "https://api.github.com/repos/amphp/parallel/zipball/c22d2838c7f8a90d5c692c7c3c480b312e162d9d",
+                "reference": "c22d2838c7f8a90d5c692c7c3c480b312e162d9d",
                 "shasum": ""
             },
             "require": {
@@ -453,7 +453,7 @@
                 "multi-processing",
                 "multi-threading"
             ],
-            "time": "2017-06-23T14:44:17+00:00"
+            "time": "2017-06-29T04:59:24+00:00"
         },
         {
             "name": "amphp/parser",

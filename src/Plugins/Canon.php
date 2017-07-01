@@ -3,32 +3,19 @@
 namespace Kelunik\Mellon\Plugins;
 
 use Kelunik\Mellon\Chat\Command;
+use Kelunik\Mellon\Storage\KeyValueStorage;
 
 class Canon extends Plugin {
     const USAGE = "Usage: !!canon topic | list | add topic content | remove topic";
 
-    private $storagePath;
     private $canons;
+    private $storage;
 
-    public function __construct(string $storagePath = null) {
-        $this->storagePath = $storagePath ?? __DIR__ . "/../../data/plugin.canon.canons.json";
-        $this->canons = $this->load();
-    }
+    public function __construct(KeyValueStorage $storage) {
+        $this->canons = $storage->get("canons") ?? [];
+        $this->storage = $storage;
 
-    public function __destruct() {
-        $this->persist();
-    }
-
-    private function load(): array {
-        if (\file_exists($this->storagePath)) {
-            return \json_decode(\file_get_contents($this->storagePath), true);
-        }
-
-        return [];
-    }
-
-    private function persist() {
-        \file_put_contents($this->storagePath, \json_encode($this->canons, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+        var_dump($storage);
     }
 
     public function getDescription(): string {
@@ -79,7 +66,7 @@ class Canon extends Plugin {
         $content = \implode(" ", $args);
 
         $this->canons[\strtolower($topic)] = $content;
-        $this->persist();
+        $this->storage->set("canons", $this->canons);
 
         return "'{$topic}' has been added.";
     }
@@ -100,7 +87,7 @@ class Canon extends Plugin {
         }
 
         unset($this->canons[$topic]);
-        $this->persist();
+        $this->storage->set("canons", $this->canons);
 
         return "'{$topic}' has been removed.";
     }

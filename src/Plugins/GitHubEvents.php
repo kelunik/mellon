@@ -6,24 +6,23 @@ use Amp\Artax\Client;
 use Amp\Artax\Response;
 use Amp\Loop;
 use Kelunik\Mellon\Mellon;
+use Kelunik\Mellon\Storage\KeyValueStorage;
 use Psr\Log\LoggerInterface;
 
 class GitHubEvents extends Plugin {
     private $watcher;
     private $mellon;
-    private $storagePath;
-    private $lastId;
     private $http;
     private $githubOrg;
     private $logger;
+    private $storage;
 
-    public function __construct(Client $http, Mellon $mellon, string $githubOrg, LoggerInterface $logger, string $storagePath = null) {
+    public function __construct(Client $http, Mellon $mellon, string $githubOrg, LoggerInterface $logger, KeyValueStorage $storage) {
         $this->http = $http;
         $this->mellon = $mellon;
         $this->logger = $logger;
-        $this->storagePath = $storagePath ?? __DIR__ . "/../../data/plugin.github.events.last.txt";
+        $this->storage = $storage;
         $this->githubOrg = $githubOrg;
-        $this->load();
 
         $this->watcher = Loop::repeat(300000, function () {
             /** @var Response $response */
@@ -36,15 +35,16 @@ class GitHubEvents extends Plugin {
             }
 
             $events = \array_reverse(\json_decode($body, true));
+            $lastId = $this->storage->get("last-id") ?? 0;
 
             foreach ($events as $event) {
-                if ($event["id"] <= $this->lastId) {
+                if ($event["id"] <= $lastId) {
                     continue;
                 }
 
                 $this->logger->debug("Processing GitHub event " . $event["id"]);
 
-                $this->lastId = $event["id"];
+                $lastId = $event["id"];
 
                 if ($event["type"] === "ReleaseEvent") {
                     if ($event["payload"]["action"] === "published") {
@@ -75,20 +75,8 @@ class GitHubEvents extends Plugin {
                 }
             }
 
-            $this->save();
+            $this->storage->set("last-id", $lastId);
         });
-    }
-
-    private function load() {
-        if (\file_exists($this->storagePath)) {
-            $this->lastId = (int) \file_get_contents($this->storagePath);
-        } else {
-            $this->lastId = 0;
-        }
-    }
-
-    private function save() {
-        \file_put_contents($this->storagePath, (string) $this->lastId);
     }
 
     public function getDescription(): string {

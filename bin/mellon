@@ -8,8 +8,15 @@ use Kelunik\Mellon\Plugins\GitHubEvents;
 
 require __DIR__ . "/../vendor/autoload.php";
 
+// It's important to catch SIGINT, so destructors can run and save data
+Loop::onSignal(\SIGINT, function () {
+    Loop::stop();
+
+    exit(0);
+});
+
 Loop::run(function () {
-    $mellon = new Mellon(getenv("MELLON_CONNECTION"), explode(",", getenv("MELLON_CHANNELS") ?: "") ?: [], [
+    $mellon = new Mellon(getenv("MELLON_CONNECTION"), array_filter(explode(",", getenv("MELLON_CHANNELS") ?: "")) ?: [], [
         Canon::class,
         GitHubEvents::class,
     ]);

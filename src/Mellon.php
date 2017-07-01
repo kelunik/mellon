@@ -11,6 +11,9 @@ use Kelunik\Mellon\Chat\Channel;
 use Kelunik\Mellon\Chat\Command;
 use Kelunik\Mellon\Chat\Message;
 use Kelunik\Mellon\Plugins\Plugin;
+use Kelunik\Mellon\Storage\FileKeyValueStorage;
+use Kelunik\Mellon\Storage\KeyValueStorage;
+use Kelunik\Mellon\Storage\PrefixKeyValueStorage;
 use Phergie\Irc\Bot\React\AbstractPlugin;
 use Phergie\Irc\Bot\React\Bot;
 use Phergie\Irc\Bot\React\EventQueueInterface;
@@ -62,9 +65,17 @@ class Mellon extends AbstractPlugin {
         $injector->share($this->bot->getLogger());
         $injector->defineParam("githubOrg", "amphp");
 
+        $storage = new FileKeyValueStorage(__DIR__ . "/../data/mellon.json");
+
         foreach ($plugins as $plugin) {
             /** @var Plugin $plugin */
-            $plugin = $injector->make($plugin);
+            $plugin = $injector->make($plugin, [
+                "+storage" => function () use ($plugin, $storage) {
+                    $lower = \strtolower(\strtr($plugin, "\\", "."));
+                    return new PrefixKeyValueStorage($storage, $lower . ".");
+                },
+            ]);
+
             $endpoints = $plugin->getEndpoints();
 
             foreach ($channels as $channel) {
