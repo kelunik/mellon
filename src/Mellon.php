@@ -72,7 +72,10 @@ class Mellon extends AbstractPlugin {
 
             while ($error = array_shift($errors)) {
                 $this->bot->getLogger()->critical("An uncaught exception: " . $error->getMessage());
-                $this->bot->getLogger()->critical($error->getTraceAsString());
+
+                foreach (\explode("\n", $error->getTraceAsString()) as $trace) {
+                    $this->bot->getLogger()->critical($trace);
+                }
 
                 if ($error instanceof MultiReasonException) {
                     $errors = array_merge($errors, $error->getReasons());
