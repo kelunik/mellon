@@ -25,9 +25,13 @@ class GitHubEvents extends Plugin {
         $this->githubOrg = $githubOrg;
 
         $this->watcher = Loop::repeat(300000, function () {
+            $this->logger->debug("Requesting recent events from GitHub");
+
             /** @var Response $response */
             $response = yield $this->http->request("https://api.github.com/orgs/" . \rawurlencode($this->githubOrg) . "/events");
             $body = yield $response->getBody();
+
+            $this->logger->debug("Request body has been fully received");
 
             if ($response->getStatus() !== 200) {
                 $this->logger->warning("Received invalid response from GitHub: " . $response->getStatus());
