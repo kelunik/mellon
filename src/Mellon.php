@@ -75,9 +75,9 @@ class Mellon extends AbstractPlugin {
                 $this->bot->getLogger()->critical($error->getTraceAsString());
 
                 if ($error instanceof MultiReasonException) {
-                    $errors[] = $error->getReasons();
-                } else {
-                    $errors[] = $error;
+                    $errors = array_merge($errors, $error->getReasons());
+                } else if ($error->getPrevious()) {
+                    $errors[] = $error->getPrevious();
                 }
             }
         });
