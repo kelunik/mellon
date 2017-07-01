@@ -14,8 +14,6 @@ class Canon extends Plugin {
     public function __construct(KeyValueStorage $storage) {
         $this->canons = $storage->get("canons") ?? [];
         $this->storage = $storage;
-
-        var_dump($storage);
     }
 
     public function getDescription(): string {
