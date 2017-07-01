@@ -48,35 +48,42 @@ class GitHubEvents extends Plugin {
 
                 if ($event["type"] === "ReleaseEvent") {
                     if ($event["payload"]["action"] === "published") {
-                        $message = \sprintf(
+                        $this->send(
                             "%s released %s for %s.",
                             $event["actor"]["login"],
                             $event["payload"]["release"]["tag_name"],
                             $event["repo"]["name"]
                         );
-
-                        foreach ($this->getChannels() as $channel) {
-                            $this->mellon->sendMessage($channel, $message);
-                        }
                     }
                 } else if ($event["type"] === "IssuesEvent") {
-                    if ($event["payload"]["action"] === "opened") {
-                        $message = \sprintf(
-                            "%s opened an issue @ %s (%s).",
-                            $event["payload"]["issue"]["user"]["login"],
-                            $event["payload"]["issue"]["html_url"],
-                            $event["payload"]["issue"]["title"]
-                        );
-
-                        foreach ($this->getChannels() as $channel) {
-                            $this->mellon->sendMessage($channel, $message);
-                        }
-                    }
+                    $this->send(
+                        "%s %s %s (%s).",
+                        $event["payload"]["issue"]["user"]["login"],
+                        $event["payload"]["action"],
+                        $event["payload"]["issue"]["html_url"],
+                        $event["payload"]["issue"]["title"]
+                    );
+                } else if ($event["type"] === "PullRequestEvent") {
+                    $this->send(
+                        "%s %s %s (%s).",
+                        $event["payload"]["pull_request"]["user"]["login"],
+                        $event["payload"]["action"],
+                        $event["payload"]["pull_request"]["html_url"],
+                        $event["payload"]["pull_request"]["title"]
+                    );
                 }
             }
 
             $this->storage->set("last-id", $lastId);
         });
+    }
+
+    private function send(string $format, ...$args) {
+        $message = \sprintf($format, ...$args);
+
+        foreach ($this->getChannels() as $channel) {
+            $this->mellon->sendMessage($channel, $message);
+        }
     }
 
     public function getDescription(): string {
