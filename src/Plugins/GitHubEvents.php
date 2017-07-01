@@ -62,7 +62,7 @@ class GitHubEvents extends Plugin {
                 } else if ($event["type"] === "IssuesEvent") {
                     $this->send(
                         "%s %s %s (%s).",
-                        $event["payload"]["issue"]["user"]["login"],
+                        $event["actor"]["login"],
                         $event["payload"]["action"],
                         $event["payload"]["issue"]["html_url"],
                         $event["payload"]["issue"]["title"]
@@ -70,7 +70,7 @@ class GitHubEvents extends Plugin {
                 } else if ($event["type"] === "PullRequestEvent") {
                     $this->send(
                         "%s %s %s (%s).",
-                        $event["payload"]["pull_request"]["user"]["login"],
+                        $event["actor"]["login"],
                         $event["payload"]["action"],
                         $event["payload"]["pull_request"]["html_url"],
                         $event["payload"]["pull_request"]["title"]
