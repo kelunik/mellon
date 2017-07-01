@@ -16,7 +16,7 @@ class FileKeyValueStorage implements KeyValueStorage {
         $this->storagePath = $storagePath;
     }
 
-    public function __destruct() {
+    private function save() {
         \file_put_contents($this->storagePath, \json_encode($this->data, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
     }
 
@@ -30,5 +30,6 @@ class FileKeyValueStorage implements KeyValueStorage {
 
     public function set(string $key, $value): void {
         $this->data[$key] = $value;
+        $this->save();
     }
 }
