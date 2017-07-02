@@ -16,7 +16,7 @@ class GitHubEvents extends Plugin {
     private $storage;
     private $interval;
 
-    public function __construct(Client $http, Mellon $mellon, int $interval, array $channels, LoggerInterface $logger, KeyValueStorage $storage) {
+    public function __construct(Client $http, Mellon $mellon, int $interval, array $channels, string $githubClientId, string $githubClientSecret, LoggerInterface $logger, KeyValueStorage $storage) {
         $this->http = $http;
         $this->mellon = $mellon;
         $this->logger = $logger;
@@ -36,22 +36,32 @@ class GitHubEvents extends Plugin {
         }
 
         foreach ($orgs as $githubOrg => $channels) {
-            $this->watchGitHub($githubOrg, $channels);
+            $this->watchGitHub($githubOrg, $channels, $githubClientId, $githubClientSecret);
         }
     }
 
-    private function watchGitHub(string $githubOrg, array $channels) {
-        Loop::repeat($this->interval * 60 * 1000, function () use ($githubOrg, $channels) {
+    private function watchGitHub(string $githubOrg, array $channels, string $githubClientId, string $githubClientSecret) {
+        Loop::repeat($this->interval * 60 * 1000, function () use ($githubOrg, $channels, $githubClientId, $githubClientSecret) {
             $this->logger->debug("Requesting recent events from GitHub");
 
+            $query = \http_build_query([
+                "client_id" => $githubClientId,
+                "client_secret" => $githubClientSecret,
+            ]);
+
             /** @var Response $response */
-            $response = yield $this->http->request("https://api.github.com/orgs/" . \rawurlencode($githubOrg) . "/events");
+            $response = yield $this->http->request("https://api.github.com/orgs/" . \rawurlencode($githubOrg) . "/events?{$query}");
             $body = yield $response->getBody();
 
             if ($response->getStatus() !== 200) {
                 $this->logger->warning("Received invalid response from GitHub: " . $response->getStatus());
                 return;
             }
+
+            $this->logger->notice("{remaining} of {limit} requests remaining for GitHub.com", [
+                "remaining" => $response->getHeader("x-ratelimit-remaining"),
+                "limit" => $response->getHeader("x-ratelimit-limit"),
+            ]);
 
             $events = \array_reverse(\json_decode($body, true));
             $lastId = $this->storage->get("last-id") ?? 0;

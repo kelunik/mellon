@@ -4,6 +4,8 @@ irc:
 
 plugins:
   Kelunik\Mellon\Plugins\GitHubEvents:
+    githubClientId: ...
+    githubClientSecret: ...
     interval: 5
     channels:
       "#amphp": amphp
