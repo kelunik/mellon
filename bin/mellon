@@ -56,7 +56,7 @@ Loop::setErrorHandler(function (\Throwable $error) use ($logger) {
 Loop::run(function () use ($logger) {
     $logger->notice("Starting up...");
 
-    $configPath = __DIR__ . "/../conf/config.yml";
+    $configPath = __DIR__ . "/../config.yml";
     $configContents = yield File\get($configPath);
 
     $logger->notice("Successfully loaded configuration file.");

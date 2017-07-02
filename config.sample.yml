@@ -1,0 +1,10 @@
+irc:
+  connection: user:pass@irc.freenode.net:6697
+  channels: ["#amphp"]
+
+plugins:
+  Kelunik\Mellon\Plugins\GitHubEvents:
+    interval: 5
+    channels:
+      "#amphp": amphp
+  Kelunik\Mellon\Plugins\Canon: []
