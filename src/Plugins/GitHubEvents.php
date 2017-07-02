@@ -24,7 +24,12 @@ class GitHubEvents extends Plugin {
         $this->interval = $interval;
 
         $orgs = [];
+
         foreach ($channels as $channel => $channelOrgs) {
+            if (!is_array($channelOrgs)) {
+                $channelOrgs = [$channelOrgs];
+            }
+
             foreach ($channelOrgs as $channelOrg) {
                 $orgs[$channelOrg][] = $channel;
             }
