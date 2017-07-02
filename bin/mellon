@@ -1,19 +1,105 @@
 #!/usr/bin/env php
 <?php
 
+use Amp\Artax;
+use Amp\File;
 use Amp\Loop;
+use Amp\MultiReasonException;
+use Auryn\Injector;
+use Kelunik\Mellon\IrcClient;
 use Kelunik\Mellon\Mellon;
+use Kelunik\Mellon\Storage\FileKeyValueStorage;
+use Kelunik\Mellon\Storage\PrefixKeyValueStorage;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
+use Psr\Log\LoggerInterface as PsrLogger;
+use Symfony\Component\Yaml\Yaml;
 
 require __DIR__ . "/../vendor/autoload.php";
 
-// It's important to catch SIGINT, so destructors can run and save data
-Loop::onSignal(\SIGINT, function () {
+// First things first, setup logger, so any error can get logged there
+$handler = new StreamHandler(STDERR, Logger::DEBUG);
+$handler->setFormatter(new LineFormatter("%datetime% %level_name% %message% %context%\n"));
+
+$logger = new Logger("mellon");
+$logger->pushHandler($handler);
+$logger->pushProcessor(new PsrLogMessageProcessor);
+
+// It's important to catch SIGINT, so destructors can run
+Loop::onSignal(\SIGINT, function () use ($logger) {
+    $logger->notice("Caught SIGINT, stopping the event loop now");
     Loop::stop();
-
-    exit(0);
 });
 
-Loop::run(function () {
-    $mellon = new Mellon;
-    $mellon->start();
+// TODO: Investigate whether it's possible to use a single log call with multi-line support.
+// TODO: Properly log further exceptions as root causes of the first one.
+Loop::setErrorHandler(function (\Throwable $error) use ($logger) {
+    $errors = [$error];
+
+    while ($error = array_shift($errors)) {
+        $logger->critical("An uncaught exception: " . $error->getMessage());
+
+        foreach (\explode("\n", $error->getTraceAsString()) as $trace) {
+            $logger->critical($trace);
+        }
+
+        if ($error instanceof MultiReasonException) {
+            $errors = array_merge($errors, $error->getReasons());
+        } else if ($error->getPrevious()) {
+            $errors[] = $error->getPrevious();
+        }
+    }
 });
+
+Loop::run(function () use ($logger) {
+    $logger->notice("Starting up...");
+
+    $configPath = __DIR__ . "/../conf/config.yml";
+    $configContents = yield File\get($configPath);
+
+    $logger->notice("Successfully loaded configuration file.");
+
+    $config = Yaml::parse($configContents);
+
+    $logger->notice("Successfully parsed loaded configuration.");
+
+    $mellon = new Mellon($config["irc"]["connection"], $config["irc"]["channels"], new IrcClient($logger));
+
+    $injector = new Injector;
+
+    $injector->alias(Artax\Client::class, Artax\BasicClient::class);
+    $injector->alias(PsrLogger::class, get_class($logger));
+
+    $injector->share(Artax\BasicClient::class);
+    $injector->share($logger);
+    $injector->share($mellon);
+
+    $storage = new FileKeyValueStorage(__DIR__ . "/../data/mellon.json");
+    $plugins = [];
+
+    foreach ($config["plugins"] as $plugin => $pluginConfig) {
+        $makeConfig = [];
+
+        foreach ($pluginConfig as $paramName => $paramValue) {
+            $makeConfig[":" . $paramName] = $paramValue;
+        }
+
+        $makeConfig["+storage"] = function () use ($plugin, $storage) {
+            return new PrefixKeyValueStorage($storage, \strtolower(strtr($plugin, "\\", ".")) . ".");
+        };
+
+        $plugins[] = $injector->make($plugin, $makeConfig);
+
+        $logger->notice("Successfully loaded plugin '{pluginName}'.", [
+            "pluginName" => $plugin,
+        ]);
+    }
+
+    $mellon->start($plugins);
+});
+
+$logger->notice("Event loop stopped, going to exit now");
+
+exit(0);
