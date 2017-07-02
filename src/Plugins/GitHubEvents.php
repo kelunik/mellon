@@ -64,7 +64,7 @@ class GitHubEvents extends Plugin {
             ]);
 
             $events = \array_reverse(\json_decode($body, true));
-            $lastId = $this->storage->get("last-id") ?? 0;
+            $lastId = $beforeId = $this->storage->get("last-id.{$githubOrg}") ?? 0;
 
             foreach ($events as $event) {
                 if ($event["id"] <= $lastId) {
@@ -74,6 +74,11 @@ class GitHubEvents extends Plugin {
                 $this->logger->debug("Processing GitHub event " . $event["id"]);
 
                 $lastId = $event["id"];
+
+                if ($beforeId === 0) {
+                    // Don't spam if uninitialized
+                    continue;
+                }
 
                 if ($event["type"] === "ReleaseEvent") {
                     if ($event["payload"]["action"] === "published") {
@@ -106,7 +111,7 @@ class GitHubEvents extends Plugin {
                 }
             }
 
-            $this->storage->set("last-id", $lastId);
+            $this->storage->set("last-id.{$githubOrg}", $lastId);
         });
     }
 
