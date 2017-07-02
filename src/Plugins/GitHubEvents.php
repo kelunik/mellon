@@ -10,28 +10,38 @@ use Kelunik\Mellon\Storage\KeyValueStorage;
 use Psr\Log\LoggerInterface;
 
 class GitHubEvents extends Plugin {
-    private $watcher;
     private $mellon;
     private $http;
-    private $githubOrg;
     private $logger;
     private $storage;
+    private $interval;
 
-    public function __construct(Client $http, Mellon $mellon, string $githubOrg, LoggerInterface $logger, KeyValueStorage $storage) {
+    public function __construct(Client $http, Mellon $mellon, int $interval, array $channels, LoggerInterface $logger, KeyValueStorage $storage) {
         $this->http = $http;
         $this->mellon = $mellon;
         $this->logger = $logger;
         $this->storage = $storage;
-        $this->githubOrg = $githubOrg;
+        $this->interval = $interval;
 
-        $this->watcher = Loop::repeat(300000, function () {
+        $orgs = [];
+        foreach ($channels as $channel => $channelOrgs) {
+            foreach ($channelOrgs as $channelOrg) {
+                $orgs[$channelOrg][] = $channel;
+            }
+        }
+
+        foreach ($orgs as $githubOrg => $channels) {
+            $this->watchGitHub($githubOrg, $channels);
+        }
+    }
+
+    private function watchGitHub(string $githubOrg, array $channels) {
+        Loop::repeat($this->interval * 60 * 1000, function () use ($githubOrg, $channels) {
             $this->logger->debug("Requesting recent events from GitHub");
 
             /** @var Response $response */
-            $response = yield $this->http->request("https://api.github.com/orgs/" . \rawurlencode($this->githubOrg) . "/events");
+            $response = yield $this->http->request("https://api.github.com/orgs/" . \rawurlencode($githubOrg) . "/events");
             $body = yield $response->getBody();
-
-            $this->logger->debug("Request body has been fully received");
 
             if ($response->getStatus() !== 200) {
                 $this->logger->warning("Received invalid response from GitHub: " . $response->getStatus());
@@ -53,6 +63,7 @@ class GitHubEvents extends Plugin {
                 if ($event["type"] === "ReleaseEvent") {
                     if ($event["payload"]["action"] === "published") {
                         $this->send(
+                            $channels,
                             "%s released %s for %s.",
                             $event["actor"]["login"],
                             $event["payload"]["release"]["tag_name"],
@@ -61,6 +72,7 @@ class GitHubEvents extends Plugin {
                     }
                 } else if ($event["type"] === "IssuesEvent") {
                     $this->send(
+                        $channels,
                         "%s %s %s (%s).",
                         $event["actor"]["login"],
                         $event["payload"]["action"],
@@ -69,6 +81,7 @@ class GitHubEvents extends Plugin {
                     );
                 } else if ($event["type"] === "PullRequestEvent") {
                     $this->send(
+                        $channels,
                         "%s %s %s (%s).",
                         $event["actor"]["login"],
                         $event["payload"]["action"],
@@ -82,10 +95,10 @@ class GitHubEvents extends Plugin {
         });
     }
 
-    private function send(string $format, ...$args) {
+    private function send(array $channels, string $format, ...$args) {
         $message = \sprintf($format, ...$args);
 
-        foreach ($this->getChannels() as $channel) {
+        foreach ($channels as $channel) {
             $this->mellon->sendMessage($channel, $message);
         }
     }

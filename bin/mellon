@@ -3,8 +3,6 @@
 
 use Amp\Loop;
 use Kelunik\Mellon\Mellon;
-use Kelunik\Mellon\Plugins\Canon;
-use Kelunik\Mellon\Plugins\GitHubEvents;
 
 require __DIR__ . "/../vendor/autoload.php";
 
@@ -16,10 +14,6 @@ Loop::onSignal(\SIGINT, function () {
 });
 
 Loop::run(function () {
-    $mellon = new Mellon(getenv("MELLON_CONNECTION"), array_filter(explode(",", getenv("MELLON_CHANNELS") ?: "")) ?: [], [
-        Canon::class,
-        GitHubEvents::class,
-    ]);
-
+    $mellon = new Mellon;
     $mellon->start();
 });

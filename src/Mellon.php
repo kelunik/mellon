@@ -14,7 +14,6 @@ use Kelunik\Mellon\Chat\Command;
 use Kelunik\Mellon\Chat\Message;
 use Kelunik\Mellon\Plugins\Plugin;
 use Kelunik\Mellon\Storage\FileKeyValueStorage;
-use Kelunik\Mellon\Storage\KeyValueStorage;
 use Kelunik\Mellon\Storage\PrefixKeyValueStorage;
 use Phergie\Irc\Bot\React\AbstractPlugin;
 use Phergie\Irc\Bot\React\Bot;
@@ -27,6 +26,7 @@ use Phergie\Irc\Event\UserEventInterface;
 use Phergie\Irc\Plugin\React\AutoJoin\Plugin as AutoJoinPlugin;
 use Psr\Log\LoggerInterface;
 use React\Promise\Promise;
+use Symfony\Component\Yaml\Yaml;
 use function Amp\asyncCall;
 use function Amp\call;
 
@@ -40,15 +40,17 @@ class Mellon extends AbstractPlugin {
     /** @var callable[] */
     private $plugins = [];
 
-    public function __construct(string $connection, array $channels, array $plugins) {
+    public function __construct() {
+        $botConfig = Yaml::parse(file_get_contents(__DIR__ . "/../conf/config.yml"));
+
         $config = [
-            "connections" => [$this->createConnectionFromUri(new Uri($connection))],
+            "connections" => [$this->createConnectionFromUri(new Uri($botConfig["irc"]["connection"]))],
             "plugins" => [],
         ];
 
-        if ($channels) {
+        if ($botConfig["irc"]["channels"]) {
             $config["plugins"][] = new AutoJoinPlugin([
-                "channels" => $channels,
+                "channels" => $botConfig["irc"]["channels"],
                 "wait-for-nickserv" => false, // identifying via PASS
             ]);
         }
@@ -65,7 +67,6 @@ class Mellon extends AbstractPlugin {
         $injector->share(new BasicClient);
         $injector->share($this);
         $injector->share($this->bot->getLogger());
-        $injector->defineParam("githubOrg", "amphp");
 
         Loop::setErrorHandler(function (\Throwable $error) {
             $errors = [$error];
@@ -87,20 +88,22 @@ class Mellon extends AbstractPlugin {
 
         $storage = new FileKeyValueStorage(__DIR__ . "/../data/mellon.json");
 
-        foreach ($plugins as $plugin) {
+        foreach ($botConfig["plugins"] as $plugin => $config) {
+            $makeConfig = [];
+
+            foreach ($config as $name => $value) {
+                $makeConfig[":" . $name] = $value;
+            }
+
+            $makeConfig["+storage"] = function () use ($plugin, $storage) {
+                $lower = \strtolower(\strtr($plugin, "\\", "."));
+                return new PrefixKeyValueStorage($storage, $lower . ".");
+            };
+
             /** @var Plugin $plugin */
-            $plugin = $injector->make($plugin, [
-                "+storage" => function () use ($plugin, $storage) {
-                    $lower = \strtolower(\strtr($plugin, "\\", "."));
-                    return new PrefixKeyValueStorage($storage, $lower . ".");
-                },
-            ]);
+            $plugin = $injector->make($plugin, $makeConfig);
 
             $endpoints = $plugin->getEndpoints();
-
-            foreach ($channels as $channel) {
-                $plugin->enableForChannel(new Channel($channel));
-            }
 
             foreach ($endpoints as $command => $endpoint) {
                 if (isset($this->plugins[$command])) {
