@@ -21,7 +21,7 @@ require __DIR__ . "/../vendor/autoload.php";
 
 // First things first, setup logger, so any error can get logged there
 $handler = new StreamHandler(STDERR, Logger::DEBUG);
-$handler->setFormatter(new LineFormatter("%datetime% %level_name% %message% %context%\n"));
+$handler->setFormatter(new LineFormatter("%level_name% %message% %context%\n"));
 
 $logger = new Logger("mellon");
 $logger->pushHandler($handler);

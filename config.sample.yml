@@ -1,5 +1,5 @@
 irc:
-  connection: user:pass@irc.freenode.net:6697
+  connection: irc://user:pass@irc.freenode.net:6697
   channels: ["#amphp"]
 
 plugins:
