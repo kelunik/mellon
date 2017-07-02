@@ -5,6 +5,7 @@ namespace Kelunik\Mellon\Plugins;
 use Amp\Artax\Client;
 use Amp\Artax\Response;
 use Amp\Loop;
+use Kelunik\Mellon\Chat\Channel;
 use Kelunik\Mellon\Mellon;
 use Kelunik\Mellon\Storage\KeyValueStorage;
 use Psr\Log\LoggerInterface;
@@ -119,7 +120,7 @@ class GitHubEvents extends Plugin {
         $message = \sprintf($format, ...$args);
 
         foreach ($channels as $channel) {
-            $this->mellon->sendMessage($channel, $message);
+            $this->mellon->sendMessage(new Channel($channel), $message);
         }
     }
 
