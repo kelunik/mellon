@@ -7,4 +7,6 @@ plugins:
     interval: 5
     channels:
       "#amphp": amphp
-  Kelunik\Mellon\Plugins\Canon: []
+  Kelunik\Mellon\Plugins\Canon:
+    channelAdmins:
+      "#amphp": [kelunik, bwoebi, trowski]

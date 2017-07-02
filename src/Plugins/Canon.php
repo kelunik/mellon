@@ -8,12 +8,12 @@ use Kelunik\Mellon\Storage\KeyValueStorage;
 class Canon extends Plugin {
     const USAGE = "Usage: !!canon topic | list | add topic content | remove topic";
 
-    private $canons;
     private $storage;
+    private $channelAdmins;
 
-    public function __construct(KeyValueStorage $storage) {
-        $this->canons = $storage->get("canons") ?? [];
+    public function __construct(KeyValueStorage $storage, array $channelAdmins) {
         $this->storage = $storage;
+        $this->channelAdmins = $channelAdmins;
     }
 
     public function getDescription(): string {
@@ -49,7 +49,13 @@ class Canon extends Plugin {
     }
 
     private function addTopic(Command $command): ?string {
-        if ($command->getMessage()->getAuthor() !== "kelunik") {
+        $channel = $command->getMessage()->getChannel()->getName();
+
+        if (!isset($this->channelAdmins[$channel])) {
+            return "Sorry, this plugin is disabled for this channel.";
+        }
+
+        if (!in_array($command->getMessage()->getAuthor(), $this->channelAdmins[$channel], true)) {
             return "Sorry, but you can't do that.";
         }
 
@@ -63,14 +69,21 @@ class Canon extends Plugin {
         $topic = \array_shift($args);
         $content = \implode(" ", $args);
 
-        $this->canons[\strtolower($topic)] = $content;
-        $this->storage->set("canons", $this->canons);
+        $canons = $this->storage->get("canons.{$channel}") ?? [];
+        $canons[\strtolower($topic)] = $content;
+        $this->storage->set("canons.{$channel}", $canons);
 
         return "'{$topic}' has been added.";
     }
 
     private function removeTopic(Command $command): ?string {
-        if ($command->getMessage()->getAuthor() !== "kelunik") {
+        $channel = $command->getMessage()->getChannel()->getName();
+
+        if (!isset($this->channelAdmins[$channel])) {
+            return "Sorry, this plugin is disabled for this channel.";
+        }
+
+        if (!in_array($command->getMessage()->getAuthor(), $this->channelAdmins[$channel], true)) {
             return "Sorry, but you can't do that.";
         }
 
@@ -79,32 +92,49 @@ class Canon extends Plugin {
         }
 
         $topic = \strtolower($command->getParameter(1));
+        $canons = $this->storage->get("canons.{$channel}") ?? [];
 
-        if (!isset($this->canons[$topic])) {
+        if (!isset($canons[$topic])) {
             return "Sorry, but that topic doesn't exist.";
         }
 
-        unset($this->canons[$topic]);
-        $this->storage->set("canons", $this->canons);
+        unset($canons[$topic]);
+        $this->storage->set("canons", $canons);
 
         return "'{$topic}' has been removed.";
     }
 
     private function listTopics(Command $command): ?string {
-        return $this->canons ? \implode(", ", \array_keys($this->canons)) : "No topics exist yet.";
+        $channel = $command->getMessage()->getChannel()->getName();
+
+        if (!isset($this->channelAdmins[$channel])) {
+            return "Sorry, this plugin is disabled for this channel.";
+        }
+
+        $canons = $this->storage->get("canons.{$channel}") ?? [];
+
+        return $canons ? \implode(", ", \array_keys($canons)) : "No topics exist yet.";
     }
 
     private function getTopic(Command $command): ?string {
+        $channel = $command->getMessage()->getChannel()->getName();
+
+        if (!isset($this->channelAdmins[$channel])) {
+            return "Sorry, this plugin is disabled for this channel.";
+        }
+
+        $canons = $this->storage->get("canons.{$channel}") ?? [];
+
         $topic = \strtolower($command->getParameter(0));
 
-        if (isset($this->canons[$topic])) {
-            return "[{$topic}] " . $this->canons[$topic];
+        if (isset($canons[$topic])) {
+            return "[{$topic}] " . $canons[$topic];
         }
 
         $bestMatch = "";
         $bestMatchPercentage = 70; /* min */
 
-        foreach ($this->canons as $name => $content) {
+        foreach ($canons as $name => $content) {
             \similar_text($topic, $name, $byRefPercentage);
 
             if ($byRefPercentage > $bestMatchPercentage) {
@@ -115,6 +145,6 @@ class Canon extends Plugin {
 
         return $bestMatch === ""
             ? "Sorry, can't find that topic."
-            : "[{$bestMatch}] " . $this->canons[$bestMatch];
+            : "[{$bestMatch}] " . $canons[$bestMatch];
     }
 }
