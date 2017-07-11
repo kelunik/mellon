@@ -76,6 +76,49 @@ class TwitterClient {
         });
     }
 
+    public function requestAccessToken() {
+        $request = new Request("https://api.twitter.com/oauth/request_token", "POST");
+        $request = $this->signRequest($request);
+
+        return call(function () use ($request) {
+            /** @var Response $response */
+            $response = yield $this->http->request($request);
+
+            if ($response->getStatus() !== 200) {
+                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
+            }
+
+            $body = yield $response->getBody();
+
+            return $body;
+        });
+    }
+
+    public function verifyAccessToken(string $verifier) {
+        $params = [
+            "oauth_verifier" => $verifier,
+        ];
+
+        $body = new FormBody;
+        $body->addFields($params);
+
+        $request = new Request("https://api.twitter.com/oauth/access_token", "POST");
+        $request = $this->signRequest($request->withBody($body), $params);
+
+        return call(function () use ($request) {
+            /** @var Response $response */
+            $response = yield $this->http->request($request);
+
+            if ($response->getStatus() !== 200) {
+                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
+            }
+
+            $body = yield $response->getBody();
+
+            return $body;
+        });
+    }
+
     private function signRequest(Request $request, array $additionalParams = []): Request {
         $nonce = bin2hex(random_bytes(16));
         $timestamp = time();

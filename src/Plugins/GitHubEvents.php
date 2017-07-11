@@ -99,11 +99,13 @@ class GitHubEvents extends Plugin {
                             $event["repo"]["name"]
                         );
 
-                        rethrow($this->twitterClient->tweet(\sprintf(
-                            "New Release: %s %s",
-                            $event["repo"]["name"],
-                            $event["payload"]["release"]["tag_name"]
-                        )));
+                        if (\strtok($event["repo"]["name"], "/") === "amphp") {
+                            rethrow($this->twitterClient->tweet(\sprintf(
+                                "New Release: %s %s #amphp",
+                                $event["repo"]["name"],
+                                $event["payload"]["release"]["tag_name"]
+                            )));
+                        }
                     }
                 } else if ($event["type"] === "IssuesEvent") {
                     $this->send(
