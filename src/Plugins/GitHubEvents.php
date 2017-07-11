@@ -101,9 +101,10 @@ class GitHubEvents extends Plugin {
 
                         if (\strtok($event["repo"]["name"], "/") === "amphp") {
                             rethrow($this->twitterClient->tweet(\sprintf(
-                                "New Release: %s %s #amphp",
+                                "New Release: %s %s %s",
                                 $event["repo"]["name"],
-                                $event["payload"]["release"]["tag_name"]
+                                $event["payload"]["release"]["tag_name"],
+                                $event["payload"]["release"]["html_url"]
                             )));
                         }
                     }
