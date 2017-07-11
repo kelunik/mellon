@@ -8,7 +8,9 @@ use Amp\Loop;
 use Kelunik\Mellon\Chat\Channel;
 use Kelunik\Mellon\Mellon;
 use Kelunik\Mellon\Storage\KeyValueStorage;
+use Kelunik\Mellon\Twitter\TwitterClient;
 use Psr\Log\LoggerInterface;
+use function Amp\Promise\rethrow;
 
 class GitHubEvents extends Plugin {
     private $mellon;
@@ -16,13 +18,19 @@ class GitHubEvents extends Plugin {
     private $logger;
     private $storage;
     private $interval;
+    private $twitterClient;
 
-    public function __construct(Client $http, Mellon $mellon, int $interval, array $channels, string $githubClientId, string $githubClientSecret, LoggerInterface $logger, KeyValueStorage $storage) {
+    public function __construct(
+        Client $http, Mellon $mellon, int $interval, array $channels, string $githubClientId,
+        string $githubClientSecret, LoggerInterface $logger, KeyValueStorage $storage,
+        string $twitterConsumerKey, string $twitterConsumerKeySecret, string $twitterAccessToken, string $twitterAccessTokenSecret
+    ) {
         $this->http = $http;
         $this->mellon = $mellon;
         $this->logger = $logger;
         $this->storage = $storage;
         $this->interval = $interval;
+        $this->twitterClient = new TwitterClient($http, $twitterConsumerKey, $twitterConsumerKeySecret, $twitterAccessToken, $twitterAccessTokenSecret);
 
         $orgs = [];
 
@@ -90,6 +98,12 @@ class GitHubEvents extends Plugin {
                             $event["payload"]["release"]["tag_name"],
                             $event["repo"]["name"]
                         );
+
+                        rethrow($this->twitterClient->tweet(\sprintf(
+                            "New Release: %s %s",
+                            $event["repo"]["name"],
+                            $event["payload"]["release"]["tag_name"]
+                        )));
                     }
                 } else if ($event["type"] === "IssuesEvent") {
                     $this->send(

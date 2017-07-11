@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e6a37855a86685c388c1779a8c44aaf",
+    "content-hash": "df5ea83374b798526649c7146c9c7a15",
     "packages": [
         {
             "name": "amphp/amp",
-            "version": "v2.0.0",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/amp.git",
-                "reference": "62e7956c93043b9f98e25e5bc9b9a216a6241ea4"
+                "reference": "916cf3119d96ba6d3b5a8c9d9bdd258960400141"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/amp/zipball/62e7956c93043b9f98e25e5bc9b9a216a6241ea4",
-                "reference": "62e7956c93043b9f98e25e5bc9b9a216a6241ea4",
+                "url": "https://api.github.com/repos/amphp/amp/zipball/916cf3119d96ba6d3b5a8c9d9bdd258960400141",
+                "reference": "916cf3119d96ba6d3b5a8c9d9bdd258960400141",
                 "shasum": ""
             },
             "require": {
@@ -79,20 +79,20 @@
                 "non-blocking",
                 "promise"
             ],
-            "time": "2017-06-15T15:50:28+00:00"
+            "time": "2017-07-09T12:20:40+00:00"
         },
         {
             "name": "amphp/artax",
-            "version": "dev-master",
+            "version": "v3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/artax.git",
-                "reference": "3dc772055ff1c26646702d1fa3e79e35f38fcd31"
+                "reference": "110797b728861da43fb43ea17c831b21880db6a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/artax/zipball/3dc772055ff1c26646702d1fa3e79e35f38fcd31",
-                "reference": "3dc772055ff1c26646702d1fa3e79e35f38fcd31",
+                "url": "https://api.github.com/repos/amphp/artax/zipball/110797b728861da43fb43ea17c831b21880db6a0",
+                "reference": "110797b728861da43fb43ea17c831b21880db6a0",
                 "shasum": ""
             },
             "require": {
@@ -100,6 +100,7 @@
                 "amphp/file": "^0.2",
                 "amphp/socket": "^0.10",
                 "amphp/uri": "^0.1",
+                "kelunik/certificate": "^1.1",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -137,7 +138,7 @@
                 "parallel",
                 "rest"
             ],
-            "time": "2017-06-29T14:15:54+00:00"
+            "time": "2017-07-11T11:38:52+00:00"
         },
         {
             "name": "amphp/byte-stream",
@@ -321,16 +322,16 @@
         },
         {
             "name": "amphp/file",
-            "version": "v0.2.1",
+            "version": "v0.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/file.git",
-                "reference": "edc6c097c2a1e67e25fce7480564cedad9bb84d1"
+                "reference": "5bac9ec7256ccbc159e52b995a8adc2187d12a22"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/file/zipball/edc6c097c2a1e67e25fce7480564cedad9bb84d1",
-                "reference": "edc6c097c2a1e67e25fce7480564cedad9bb84d1",
+                "url": "https://api.github.com/repos/amphp/file/zipball/5bac9ec7256ccbc159e52b995a8adc2187d12a22",
+                "reference": "5bac9ec7256ccbc159e52b995a8adc2187d12a22",
                 "shasum": ""
             },
             "require": {
@@ -383,7 +384,7 @@
                 "non-blocking",
                 "static"
             ],
-            "time": "2017-06-23T22:47:32+00:00"
+            "time": "2017-07-06T21:51:20+00:00"
         },
         {
             "name": "amphp/parallel",
@@ -597,16 +598,16 @@
         },
         {
             "name": "amphp/socket",
-            "version": "v0.10.1",
+            "version": "v0.10.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/socket.git",
-                "reference": "ee1af9a716af7ba3c500f532566dd62182de94ad"
+                "reference": "e58766bf0caa59bfa6ba56be260438af109eaea1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/socket/zipball/ee1af9a716af7ba3c500f532566dd62182de94ad",
-                "reference": "ee1af9a716af7ba3c500f532566dd62182de94ad",
+                "url": "https://api.github.com/repos/amphp/socket/zipball/e58766bf0caa59bfa6ba56be260438af109eaea1",
+                "reference": "e58766bf0caa59bfa6ba56be260438af109eaea1",
                 "shasum": ""
             },
             "require": {
@@ -660,7 +661,7 @@
                 "tcp",
                 "tls"
             ],
-            "time": "2017-06-24T14:00:35+00:00"
+            "time": "2017-07-03T10:48:49+00:00"
         },
         {
             "name": "amphp/uri",
@@ -824,6 +825,55 @@
                 "event-emitter"
             ],
             "time": "2012-11-02T14:49:47+00:00"
+        },
+        {
+            "name": "kelunik/certificate",
+            "version": "v1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kelunik/certificate.git",
+                "reference": "524fa432ed1b5f50efbe7749f3c19e28a9866bc7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kelunik/certificate/zipball/524fa432ed1b5f50efbe7749f3c19e28a9866bc7",
+                "reference": "524fa432ed1b5f50efbe7749f3c19e28a9866bc7",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "php": "^5.4 | ^7.0"
+            },
+            "require-dev": {
+                "fabpot/php-cs-fixer": "^1.9",
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Kelunik\\Certificate\\": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                }
+            ],
+            "description": "Access certificate details and transform between different formats.",
+            "keywords": [
+                "DER",
+                "certificate",
+                "certificates",
+                "openssl",
+                "pem",
+                "x509"
+            ],
+            "time": "2017-07-04T19:37:30+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -1694,16 +1744,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.3.2",
+            "version": "v3.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "9752a30000a8ca9f4b34b5227d15d0101b96b063"
+                "reference": "1f93a8d19b8241617f5074a123e282575b821df8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/9752a30000a8ca9f4b34b5227d15d0101b96b063",
-                "reference": "9752a30000a8ca9f4b34b5227d15d0101b96b063",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/1f93a8d19b8241617f5074a123e282575b821df8",
+                "reference": "1f93a8d19b8241617f5074a123e282575b821df8",
                 "shasum": ""
             },
             "require": {
@@ -1745,15 +1795,13 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-02T22:05:06+00:00"
+            "time": "2017-06-15T12:58:50+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "amphp/artax": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

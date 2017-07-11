@@ -22,7 +22,7 @@
         "phergie/phergie-irc-plugin-react-nickserv": "^2.0",
         "phergie/phergie-irc-plugin-react-autojoin": "^2.0",
         "rdlowrey/auryn": "^1.4",
-        "amphp/artax": "dev-master",
+        "amphp/artax": "^3",
         "symfony/yaml": "^3.3"
     }
 }

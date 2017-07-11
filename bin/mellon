@@ -69,10 +69,10 @@ Loop::run(function () use ($logger) {
 
     $injector = new Injector;
 
-    $injector->alias(Artax\Client::class, Artax\BasicClient::class);
+    $injector->alias(Artax\Client::class, Artax\DefaultClient::class);
     $injector->alias(PsrLogger::class, get_class($logger));
 
-    $injector->share(Artax\BasicClient::class);
+    $injector->share(Artax\DefaultClient::class);
     $injector->share($logger);
     $injector->share($mellon);
 
