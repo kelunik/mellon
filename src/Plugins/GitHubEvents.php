@@ -23,14 +23,14 @@ class GitHubEvents extends Plugin {
     public function __construct(
         Client $http, Mellon $mellon, int $interval, array $channels, string $githubClientId,
         string $githubClientSecret, LoggerInterface $logger, KeyValueStorage $storage,
-        string $twitterConsumerKey, string $twitterConsumerKeySecret, string $twitterAccessToken, string $twitterAccessTokenSecret
+        string $twitterConsumerKey, string $twitterConsumerSecret, string $twitterAccessToken, string $twitterAccessTokenSecret
     ) {
         $this->http = $http;
         $this->mellon = $mellon;
         $this->logger = $logger;
         $this->storage = $storage;
         $this->interval = $interval;
-        $this->twitterClient = new TwitterClient($http, $twitterConsumerKey, $twitterConsumerKeySecret, $twitterAccessToken, $twitterAccessTokenSecret);
+        $this->twitterClient = new TwitterClient($http, $twitterConsumerKey, $twitterConsumerSecret, $twitterAccessToken, $twitterAccessTokenSecret);
 
         $orgs = [];
 
