@@ -83,16 +83,16 @@
         },
         {
             "name": "amphp/artax",
-            "version": "v3.0.1",
+            "version": "v3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/artax.git",
-                "reference": "110797b728861da43fb43ea17c831b21880db6a0"
+                "reference": "65571780d474584b3224e527ae1f2d7b7b399a35"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/artax/zipball/110797b728861da43fb43ea17c831b21880db6a0",
-                "reference": "110797b728861da43fb43ea17c831b21880db6a0",
+                "url": "https://api.github.com/repos/amphp/artax/zipball/65571780d474584b3224e527ae1f2d7b7b399a35",
+                "reference": "65571780d474584b3224e527ae1f2d7b7b399a35",
                 "shasum": ""
             },
             "require": {
@@ -138,7 +138,7 @@
                 "parallel",
                 "rest"
             ],
-            "time": "2017-07-11T11:38:52+00:00"
+            "time": "2017-07-12T16:14:47+00:00"
         },
         {
             "name": "amphp/byte-stream",
