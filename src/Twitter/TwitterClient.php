@@ -150,7 +150,13 @@ class TwitterClient {
         asort($encodedParams);
         ksort($encodedParams);
 
-        $signingData = $request->getMethod() . "&" . \rawurlencode(\strtok($request->getUri(), "?")) . "&" . \rawurlencode(\http_build_query($encodedParams, '', '&', \PHP_QUERY_RFC3986));
+        $query = [];
+
+        foreach ($encodedParams as $key => $value) {
+            $query[] = "$key=$value";
+        }
+
+        $signingData = $request->getMethod() . "&" . \rawurlencode(\strtok($request->getUri(), "?")) . "&" . \rawurlencode(\implode("&", $query));
         $signature = base64_encode(hash_hmac("sha1", $signingData, \rawurlencode($this->consumerSecret) . "&" . \rawurlencode($this->accessTokenSecret), true));
 
         return $request->withHeader("authorization", $authorization . 'oauth_signature="' . \rawurlencode($signature) . '"');
