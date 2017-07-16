@@ -12,10 +12,10 @@ $font = __DIR__ . "/../res/yanone-kaffeesatz.ttf";
 
 
 $size = \imagettfbbox(60, 0, $font, $argv[1]);
-\imagettftext($handle, 60, 0, 450 - ($size[2] - $size[0]) / 2, 100, $textPrimary, $font, $argv[1]);
+\imagettftext($handle, 60, 0, 450 - ($size[2] - $size[0]) / 2, 115, $textPrimary, $font, $argv[1]);
 
-$size = \imagettfbbox(40, 0, $font, $argv[2]);
-\imagettftext($handle, 40, 0, 450 - ($size[2] - $size[0]) / 2, 160, $textSecondary, $font, $argv[2]);
+$size = \imagettfbbox(35, 0, $font, $argv[2]);
+\imagettftext($handle, 35, 0, 450 - ($size[2] - $size[0]) / 2, 175, $textSecondary, $font, $argv[2]);
 
 \imagepng($handle, null, 9, \PNG_ALL_FILTERS);
 
