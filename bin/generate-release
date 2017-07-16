@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . "/../vendor/autoload.php";
+
+$handle = \imagecreatefrompng(__DIR__ . "/../res/amphp-cover.png");
+
+$textPrimary = \imagecolorallocate($handle, 0, 0, 0);
+$textSecondary = \imagecolorallocate($handle, 80, 80, 80);
+
+$font = __DIR__ . "/../res/yanone-kaffeesatz.ttf";
+
+
+$size = \imagettfbbox(60, 0, $font, $argv[1]);
+\imagettftext($handle, 60, 0, 450 - ($size[2] - $size[0]) / 2, 100, $textPrimary, $font, $argv[1]);
+
+$size = \imagettfbbox(40, 0, $font, $argv[2]);
+\imagettftext($handle, 40, 0, 450 - ($size[2] - $size[0]) / 2, 160, $textSecondary, $font, $argv[2]);
+
+\imagepng($handle, null, 9, \PNG_ALL_FILTERS);
+
+exit(0);

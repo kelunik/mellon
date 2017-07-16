@@ -4,12 +4,16 @@ namespace Kelunik\Mellon\Plugins;
 
 use Amp\Artax\Client;
 use Amp\Artax\Response;
+use Amp\ByteStream\Message;
+use Amp\File;
 use Amp\Loop;
+use Amp\Process\Process;
 use Kelunik\Mellon\Chat\Channel;
 use Kelunik\Mellon\Mellon;
 use Kelunik\Mellon\Storage\KeyValueStorage;
 use Kelunik\Mellon\Twitter\TwitterClient;
 use Psr\Log\LoggerInterface;
+use function Amp\call;
 use function Amp\Promise\rethrow;
 
 class GitHubEvents extends Plugin {
@@ -100,12 +104,39 @@ class GitHubEvents extends Plugin {
                         );
 
                         if (\strtok($event["repo"]["name"], "/") === "amphp") {
-                            rethrow($this->twitterClient->tweet(\sprintf(
-                                "New Release: %s %s %s",
-                                $event["repo"]["name"],
-                                $event["payload"]["release"]["tag_name"],
-                                $event["payload"]["release"]["html_url"]
-                            )));
+                            rethrow(call(function () use ($event) {
+                                $imgPath = \tempnam(\sys_get_temp_dir(), "mellon-twitter-release-");
+
+                                $process = new Process([
+                                    __DIR__ . "/../../bin/generate-release",
+                                    $event["repo"]["name"],
+                                    $event["payload"]["release"]["tag_name"],
+                                ]);
+
+                                $process->start();
+
+                                $png = yield new Message($process->getStdout());
+                                $status = yield $process->join();
+
+                                if ($status !== 0) {
+                                    throw new \Exception("Release sub-process failed ({$status}).");
+                                }
+
+                                yield File\put($imgPath, $png);
+
+                                $mediaId = yield $this->twitterClient->uploadImage($imgPath);
+
+                                yield $this->twitterClient->tweet(\sprintf(
+                                    "%s %s released. %s",
+                                    $event["repo"]["name"],
+                                    $event["payload"]["release"]["tag_name"],
+                                    $event["payload"]["release"]["html_url"]
+                                ), [
+                                    $mediaId,
+                                ]);
+
+                                yield File\unlink($imgPath);
+                            }));
                         }
                     }
                 } else if ($event["type"] === "IssuesEvent") {
