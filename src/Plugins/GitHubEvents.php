@@ -93,14 +93,18 @@ class GitHubEvents extends Plugin {
                     continue;
                 }
 
+                // Colors and formatting: https://github.com/myano/jenni/wiki/IRC-String-Formatting
+
                 if ($event["type"] === "ReleaseEvent") {
                     if ($event["payload"]["action"] === "published") {
                         $this->send(
                             $channels,
-                            "%s released %s for %s.",
+                            "%s🏷 %s released %s for %s.%s",
+                            "\x02\x0303", // green and bold
                             $event["actor"]["login"],
                             $event["payload"]["release"]["tag_name"],
-                            $event["repo"]["name"]
+                            $event["repo"]["name"],
+                            "\x0f" // reset formatting
                         );
 
                         if (\strtok($event["repo"]["name"], "/") === "amphp") {
