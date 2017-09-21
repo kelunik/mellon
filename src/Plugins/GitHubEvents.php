@@ -99,7 +99,7 @@ class GitHubEvents extends Plugin {
                     if ($event["payload"]["action"] === "published") {
                         $this->send(
                             $channels,
-                            "%s🏷 %s released %s for %s.%s",
+                            "%s⛵ %s released %s for %s.%s",
                             "\x02\x0303", // green and bold
                             $event["actor"]["login"],
                             $event["payload"]["release"]["tag_name"],
@@ -109,6 +109,10 @@ class GitHubEvents extends Plugin {
 
                         if (\strtok($event["repo"]["name"], "/") === "amphp") {
                             rethrow(call(function () use ($event) {
+                                if ($event["repo"]["name"] === "amphp/windows-process-wrapper") {
+                                    return; // ignore releases, as it's only bundled and not a separate package really.
+                                }
+
                                 $imgPath = \tempnam(\sys_get_temp_dir(), "mellon-twitter-release-");
 
                                 $process = new Process([
