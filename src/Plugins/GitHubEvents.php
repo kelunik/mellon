@@ -152,13 +152,13 @@ class GitHubEvents extends Plugin {
                         "opened" => "\x02\x0303",
                         "reopened" => "\x02\x0303",
                         "closed" => "\x02\x0304",
-                    ][$event["action"]] ?? "\x02\x0308";
+                    ][$event["payload"]["action"]] ?? "\x02\x0308";
 
                     $icon = [
                         "opened" => "📫",
                         "reopened" => "📫",
                         "closed" => "📪",
-                    ][$event["action"]] ?? "⚡";
+                    ][$event["payload"]["action"]] ?? "⚡";
 
                     $this->send(
                         $channels,
@@ -174,13 +174,13 @@ class GitHubEvents extends Plugin {
                     $color = [
                         "opened" => "\x02\x0303",
                         "reopened" => "\x02\x0303",
-                        "closed" => $event["merged"] ? "\x02\x0306" : "\x02\x0304",
-                    ][$event["action"]] ?? "\x02\x0308";
+                        "closed" => $event["payload"]["pull_request"]["merged"] ? "\x02\x0306" : "\x02\x0304",
+                    ][$event["payload"]["action"]] ?? "\x02\x0308";
 
                     $icon = [
                         "opened" => "⇢",
-                        "closed" => $event["merged"] ? "↣" : "↛",
-                    ][$event["action"]] ?? "⚡";
+                        "closed" => $event["payload"]["pull_request"]["merged"] ? "↣" : "↛",
+                    ][$event["payload"]["action"]] ?? "⚡";
 
                     $this->send(
                         $channels,
