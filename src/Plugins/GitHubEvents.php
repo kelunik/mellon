@@ -162,7 +162,7 @@ class GitHubEvents extends Plugin {
 
                     $this->send(
                         $channels,
-                        "%s%s%s %s %s (%s).\x0f",
+                        "%s%s %s %s %s (%s).\x0f",
                         $color,
                         $icon,
                         $event["actor"]["login"],
@@ -184,7 +184,7 @@ class GitHubEvents extends Plugin {
 
                     $this->send(
                         $channels,
-                        "%s%s%s %s %s (%s).\x0f",
+                        "%s%s %s %s %s (%s).\x0f",
                         $color,
                         $icon,
                         $event["actor"]["login"],
