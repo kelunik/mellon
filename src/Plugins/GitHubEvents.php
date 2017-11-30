@@ -148,18 +148,45 @@ class GitHubEvents extends Plugin {
                         }
                     }
                 } else if ($event["type"] === "IssuesEvent") {
+                    $color = [
+                        "opened" => "\x02\x0303",
+                        "reopened" => "\x02\x0303",
+                        "closed" => "\x02\x0304",
+                    ][$event["action"]] ?? "\x02\x0308";
+
+                    $icon = [
+                        "opened" => "📫",
+                        "reopened" => "📫",
+                        "closed" => "📪",
+                    ][$event["action"]] ?? "⚡";
+
                     $this->send(
                         $channels,
-                        "%s %s %s (%s).",
+                        "%s%s%s %s %s (%s).\x0f",
+                        $color,
+                        $icon,
                         $event["actor"]["login"],
                         $event["payload"]["action"],
                         $event["payload"]["issue"]["html_url"],
                         $event["payload"]["issue"]["title"]
                     );
                 } else if ($event["type"] === "PullRequestEvent") {
+                    $color = [
+                        "opened" => "\x02\x0303",
+                        "reopened" => "\x02\x0303",
+                        "closed" => $event["merged"] ? "\x02\x0306" : "\x02\x0304",
+                    ][$event["action"]] ?? "\x02\x0308";
+
+                    $icon = [
+                        "opened" => "⇢",
+                        "closed" => $event["merged"] ? "↣" : "↛",
+                    ][$event["action"]] ?? "⚡";
+
                     $this->send(
                         $channels,
-                        "%s %s %s (%s).",
+                        "%s%s%s %s %s (%s).\x0f",
+                        $color,
+                        $icon,
                         $event["actor"]["login"],
                         $event["payload"]["action"],
                         $event["payload"]["pull_request"]["html_url"],
