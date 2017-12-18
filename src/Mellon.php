@@ -2,6 +2,7 @@
 
 namespace Kelunik\Mellon;
 
+use Amp\Promise;
 use Kelunik\Mellon\Chat\Channel;
 use Kelunik\Mellon\Chat\Command;
 use Kelunik\Mellon\Chat\Message;
@@ -66,13 +67,26 @@ class Mellon extends AbstractPlugin {
 
     private function onMessage(UserEventInterface $event, EventQueueInterface $queue) {
         $text = $event->getParams()["text"];
+        $channel = new Channel($event->getSource());
+        $message = new Message($channel, $event->getNick(), $text);
 
         if (\substr($text, 0, 2) !== "!!") {
+            $promises = [];
+
+            foreach ($this->plugins as $plugin) {
+                $promises = $plugin[0]->onMessage($message);
+            }
+
+            /** @var array $errors */
+            [$errors] = Promise\any($promises);
+
+            foreach ($errors as $error) {
+                $this->logger->error($error);
+            }
+
             return;
         }
 
-        $channel = new Channel($event->getSource());
-        $message = new Message($channel, $event->getNick(), $text);
         $command = Command::fromMessage($message);
 
         asyncCall(function () use ($command, $queue) {
