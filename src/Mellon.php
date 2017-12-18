@@ -74,7 +74,7 @@ class Mellon extends AbstractPlugin {
             $promises = [];
 
             foreach ($this->plugins as $plugin) {
-                $promises = $plugin[0]->onMessage($message);
+                $promises[] = $plugin[0]->onMessage($message);
             }
 
             /** @var array $errors */
