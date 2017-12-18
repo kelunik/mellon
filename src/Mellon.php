@@ -2,10 +2,12 @@
 
 namespace Kelunik\Mellon;
 
+use Amp\Failure;
 use Amp\Promise;
 use Kelunik\Mellon\Chat\Channel;
 use Kelunik\Mellon\Chat\Command;
 use Kelunik\Mellon\Chat\Message;
+use Kelunik\Mellon\Plugins\Plugin;
 use Phergie\Irc\Bot\React\AbstractPlugin;
 use Phergie\Irc\Bot\React\Bot;
 use Phergie\Irc\Bot\React\EventQueueInterface;
@@ -23,6 +25,9 @@ class Mellon extends AbstractPlugin {
     private $queue;
 
     /** @var callable[] */
+    private $commands = [];
+
+    /** @var Plugin[] */
     private $plugins = [];
 
     public function __construct(string $connection, array $channels, IrcClient $ircClient) {
@@ -40,14 +45,15 @@ class Mellon extends AbstractPlugin {
 
     public function start(array $plugins) {
         foreach ($plugins as $plugin) {
+            $this->plugins[] = $plugin;
             $endpoints = $plugin->getEndpoints();
 
             foreach ($endpoints as $command => $endpoint) {
-                if (isset($this->plugins[$command])) {
+                if (isset($this->commands[$command])) {
                     throw new \Error("Duplicate command: $command");
                 }
 
-                $this->plugins[$command] = [$plugin, $endpoint];
+                $this->commands[$command] = [$plugin, $endpoint];
             }
         }
 
@@ -71,31 +77,24 @@ class Mellon extends AbstractPlugin {
         $message = new Message($channel, $event->getNick(), $text);
 
         if (\substr($text, 0, 2) !== "!!") {
-            $promises = [];
-
             foreach ($this->plugins as $plugin) {
-                $promises[] = $plugin[0]->onMessage($message);
+                try {
+                    Promise\rethrow($plugin->onMessage($message));
+                } catch (\Throwable $e) {
+                    Promise\rethrow(new Failure($e));
+                }
             }
-
-            /** @var array $errors */
-            [$errors] = yield Promise\any($promises);
-
-            foreach ($errors as $error) {
-                $this->logger->error($error);
-            }
-
-            return;
         }
 
         $command = Command::fromMessage($message);
 
         asyncCall(function () use ($command, $queue) {
-            if (!isset($this->plugins[$command->getCommandName()])) {
+            if (!isset($this->commands[$command->getCommandName()])) {
                 $this->sendMessage($command->getMessage()->getChannel(), "Sorry, can't find that command.");
                 return;
             }
 
-            $handler = $this->plugins[$command->getCommandName()];
+            $handler = $this->commands[$command->getCommandName()];
 
             $message = yield call($handler, $command);
 

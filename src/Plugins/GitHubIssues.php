@@ -43,6 +43,10 @@ class GitHubIssues extends Plugin {
 
                 $url = 'https://api.github.com/repos/amphp/' . \rawurlencode($match[1]) . '/issues/' . \rawurlencode($match[2]);
 
+                $this->logger->debug('Requesting {url}', [
+                    'url' => $url
+                ]);
+
                 /** @var Response $response */
                 $response = yield $this->http->request($url . '?' . $query);
                 $body = yield $response->getBody();
