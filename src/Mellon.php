@@ -78,7 +78,7 @@ class Mellon extends AbstractPlugin {
             }
 
             /** @var array $errors */
-            [$errors] = Promise\any($promises);
+            [$errors] = yield Promise\any($promises);
 
             foreach ($errors as $error) {
                 $this->logger->error($error);
