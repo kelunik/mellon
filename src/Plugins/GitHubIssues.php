@@ -29,19 +29,41 @@ class GitHubIssues extends Plugin {
     }
 
     public function onMessage(Message $message): Promise {
-        if (!\preg_match_all('(([a-z-]+)#(\d+))i', $message->getText(), $matches, \PREG_SET_ORDER)) {
+        // \b doesn't work for the start, because #12 isn't matched then
+        if (!\preg_match_all('((?<=^|[ ,])(?:(?:([a-z0-9-_]+)/)?([a-z0-9-_]+))?#(\d+)(?=\b))i', $message->getText(), $matches, \PREG_SET_ORDER)) {
             return new Success;
         }
 
         return call(function () use ($message, $matches) {
+            $lastVendor = '';
+            $lastRepository = '';
+
             /** @var array[] $matches */
             foreach ($matches as $match) {
+                [$vendor, $repository, $issue] = $match;
+
+                if ($vendor === '') {
+                    $vendor = 'amphp';
+                }
+
+                if ($repository === '') {
+                    if ($lastRepository === '') {
+                        continue;
+                    }
+
+                    $vendor = $lastVendor;
+                    $repository = $lastRepository;
+                }
+
+                $lastVendor = $vendor;
+                $lastRepository = $repository;
+
                 $query = \http_build_query([
-                    "client_id" => $this->githubClientId,
-                    "client_secret" => $this->githubClientSecret,
+                    'client_id' => $this->githubClientId,
+                    'client_secret' => $this->githubClientSecret,
                 ]);
 
-                $url = 'https://api.github.com/repos/amphp/' . \rawurlencode($match[1]) . '/issues/' . \rawurlencode($match[2]);
+                $url = 'https://api.github.com/repos/' . \rawurlencode($vendor) . '/' . \rawurlencode($repository) . '/issues/' . \rawurlencode($issue);
 
                 $this->logger->debug('Requesting {url}', [
                     'url' => $url
@@ -57,13 +79,13 @@ class GitHubIssues extends Plugin {
                         continue;
                     }
 
-                    $this->logger->warning("Received invalid response from GitHub: " . $response->getStatus());
+                    $this->logger->warning('Received invalid response from GitHub: ' . $response->getStatus());
                     continue;
                 }
 
-                $this->logger->notice("{remaining} of {limit} requests remaining for GitHub.com", [
-                    "remaining" => $response->getHeader("x-ratelimit-remaining"),
-                    "limit" => $response->getHeader("x-ratelimit-limit"),
+                $this->logger->notice('{remaining} of {limit} requests remaining for GitHub.com', [
+                    'remaining' => $response->getHeader('x-ratelimit-remaining'),
+                    'limit' => $response->getHeader('x-ratelimit-limit'),
                 ]);
 
                 $issue = \json_decode($body, true);
@@ -78,7 +100,7 @@ class GitHubIssues extends Plugin {
     }
 
     public function getDescription(): string {
-        return "Posts links to mentioned GitHub issues.";
+        return 'Posts links to mentioned GitHub issues.';
     }
 
     public function getEndpoints(): array {
