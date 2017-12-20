@@ -40,7 +40,7 @@ class GitHubIssues extends Plugin {
 
             /** @var array[] $matches */
             foreach ($matches as $match) {
-                [$vendor, $repository, $issue] = $match;
+                [$_, $vendor, $repository, $issue] = $match;
 
                 if ($vendor === '') {
                     $vendor = 'amphp';
