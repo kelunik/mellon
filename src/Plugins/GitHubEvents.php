@@ -155,9 +155,9 @@ class GitHubEvents extends Plugin {
                     ][$event["payload"]["action"]] ?? "\x02\x0308";
 
                     $icon = [
-                        "opened" => "📫",
-                        "reopened" => "📫",
-                        "closed" => "📪",
+                        "opened" => "🛈",
+                        "reopened" => "🛈",
+                        "closed" => "🛈",
                     ][$event["payload"]["action"]] ?? "⚡";
 
                     $this->send(

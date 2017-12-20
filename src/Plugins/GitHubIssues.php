@@ -91,7 +91,7 @@ class GitHubIssues extends Plugin {
                 $issue = \json_decode($body, true);
 
                 $this->mellon->sendMessage($message->getChannel(), \sprintf(
-                    '%s – %s',
+                    "\x02\x0302%s\x0f – %s",
                     $issue['html_url'],
                     \trim($issue['title'])
                 ));
