@@ -14,6 +14,8 @@ use Phergie\Irc\Bot\React\EventQueueInterface;
 use Phergie\Irc\ConnectionInterface;
 use Phergie\Irc\Event\UserEventInterface;
 use Phergie\Irc\Plugin\React\AutoJoin\Plugin as AutoJoinPlugin;
+use Psr\Log\LoggerInterface as PsrLogger;
+use Psr\Log\NullLogger;
 use function Amp\asyncCall;
 use function Amp\call;
 
@@ -65,8 +67,16 @@ class Mellon extends AbstractPlugin {
             "irc.received.privmsg" => function (...$args) {
                 $this->onMessage(...$args);
             },
-            "connect.after.each" => function (...$args) {
-                $this->onConnect(...$args);
+            "connect.after.each" => function (ConnectionInterface $connection) {
+                $logger = $this->getLogger() ?? new NullLogger;
+                $logger->info('Connected to ' . $connection->getServerHostname());
+                $this->onConnect($connection);
+            },
+            "connect.error" => function (\Throwable $e, ConnectionInterface $connection, PsrLogger $logger) {
+                $logger->info('Connection to ' . $connection->getServerHostname() . ' failed: ' . $e->getMessage());
+            },
+            "connect.end" => function (ConnectionInterface $connection, PsrLogger $logger) {
+                $logger->info('Connection to ' . $connection->getServerHostname() . ' terminated.');
             },
         ];
     }
