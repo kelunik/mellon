@@ -123,11 +123,15 @@ class GitHubEvents extends Plugin {
 
                                 $process->start();
 
-                                $png = yield new Message($process->getStdout());
+                                [$png, $errors] = yield [
+                                    new Message($process->getStdout()),
+                                    new Message($process->getStderr()),
+                                ];
+
                                 $status = yield $process->join();
 
                                 if ($status !== 0) {
-                                    throw new \Exception("Release sub-process failed ({$status}).");
+                                    throw new \Exception("Release sub-process failed ({$status}): {$errors}");
                                 }
 
                                 yield File\put($imgPath, $png);
