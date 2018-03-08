@@ -94,6 +94,8 @@ class Mellon extends AbstractPlugin {
                     Promise\rethrow(new Failure($e));
                 }
             }
+
+            return;
         }
 
         $command = Command::fromMessage($message);
