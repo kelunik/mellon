@@ -33,6 +33,12 @@ Loop::onSignal(\SIGINT, function () use ($logger) {
     Loop::stop();
 });
 
+// It's important to catch SIGTERM, so destructors can run
+Loop::onSignal(\SIGTERM, function () use ($logger) {
+    $logger->notice("Caught SIGTERM, stopping the event loop now");
+    Loop::stop();
+});
+
 // TODO: Investigate whether it's possible to use a single log call with multi-line support.
 // TODO: Properly log further exceptions as root causes of the first one.
 Loop::setErrorHandler(function (\Throwable $error) use ($logger) {
