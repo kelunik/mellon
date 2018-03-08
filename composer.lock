@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "amphp/amp",
-            "version": "v2.0.1",
+            "version": "v2.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/amp.git",
-                "reference": "916cf3119d96ba6d3b5a8c9d9bdd258960400141"
+                "reference": "4a742beb59615f36ed998e2dc210e36576e44c44"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/amp/zipball/916cf3119d96ba6d3b5a8c9d9bdd258960400141",
-                "reference": "916cf3119d96ba6d3b5a8c9d9bdd258960400141",
+                "url": "https://api.github.com/repos/amphp/amp/zipball/4a742beb59615f36ed998e2dc210e36576e44c44",
+                "reference": "4a742beb59615f36ed998e2dc210e36576e44c44",
                 "shasum": ""
             },
             "require": {
@@ -26,6 +26,7 @@
             "require-dev": {
                 "amphp/phpunit-util": "^1",
                 "friendsofphp/php-cs-fixer": "^2.3",
+                "phpstan/phpstan": "^0.8.5",
                 "phpunit/phpunit": "^6.0.9",
                 "react/promise": "^2"
             },
@@ -79,26 +80,27 @@
                 "non-blocking",
                 "promise"
             ],
-            "time": "2017-07-09T12:20:40+00:00"
+            "time": "2018-01-27T19:18:05+00:00"
         },
         {
             "name": "amphp/artax",
-            "version": "v3.0.2",
+            "version": "v3.0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/artax.git",
-                "reference": "65571780d474584b3224e527ae1f2d7b7b399a35"
+                "reference": "84ba8e2014a81e399541f3dc3a6352bab09c980c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/artax/zipball/65571780d474584b3224e527ae1f2d7b7b399a35",
-                "reference": "65571780d474584b3224e527ae1f2d7b7b399a35",
+                "url": "https://api.github.com/repos/amphp/artax/zipball/84ba8e2014a81e399541f3dc3a6352bab09c980c",
+                "reference": "84ba8e2014a81e399541f3dc3a6352bab09c980c",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^2",
-                "amphp/file": "^0.2",
-                "amphp/socket": "^0.10",
+                "amphp/byte-stream": "^1.1.6",
+                "amphp/file": "^0.2 || ^0.3",
+                "amphp/socket": "^0.10.5",
                 "amphp/uri": "^0.1",
                 "kelunik/certificate": "^1.1",
                 "php": ">=7.0"
@@ -138,20 +140,20 @@
                 "parallel",
                 "rest"
             ],
-            "time": "2017-07-12T16:14:47+00:00"
+            "time": "2018-02-01T20:29:48+00:00"
         },
         {
             "name": "amphp/byte-stream",
-            "version": "v1.1.1",
+            "version": "v1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/byte-stream.git",
-                "reference": "47775086376fd2f82fc70b3862aa82e64a5ea667"
+                "reference": "1b0b8daed484b070a9ee329ba78675288d291558"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/byte-stream/zipball/47775086376fd2f82fc70b3862aa82e64a5ea667",
-                "reference": "47775086376fd2f82fc70b3862aa82e64a5ea667",
+                "url": "https://api.github.com/repos/amphp/byte-stream/zipball/1b0b8daed484b070a9ee329ba78675288d291558",
+                "reference": "1b0b8daed484b070a9ee329ba78675288d291558",
                 "shasum": ""
             },
             "require": {
@@ -195,20 +197,20 @@
                 "non-blocking",
                 "stream"
             ],
-            "time": "2017-06-28T09:35:12+00:00"
+            "time": "2018-01-12T19:43:00+00:00"
         },
         {
             "name": "amphp/cache",
-            "version": "v1.0.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/cache.git",
-                "reference": "3b5c5243f81eb71f63f49dc03764754345810636"
+                "reference": "ab2339e465d9d383dc748f288d530fd7cd7aadea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/cache/zipball/3b5c5243f81eb71f63f49dc03764754345810636",
-                "reference": "3b5c5243f81eb71f63f49dc03764754345810636",
+                "url": "https://api.github.com/repos/amphp/cache/zipball/ab2339e465d9d383dc748f288d530fd7cd7aadea",
+                "reference": "ab2339e465d9d383dc748f288d530fd7cd7aadea",
                 "shasum": ""
             },
             "require": {
@@ -241,31 +243,31 @@
             ],
             "description": "A promise-aware caching API for Amp.",
             "homepage": "https://github.com/amphp/cache",
-            "time": "2017-06-16T19:14:28+00:00"
+            "time": "2017-10-04T19:22:12+00:00"
         },
         {
             "name": "amphp/dns",
-            "version": "v0.9.4",
+            "version": "v0.9.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/dns.git",
-                "reference": "d382d71fc7f7c3ff560f428b181b139d76a577e3"
+                "reference": "2c8133a7b4267ba570f473abe4b08b01a0c8238a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/dns/zipball/d382d71fc7f7c3ff560f428b181b139d76a577e3",
-                "reference": "d382d71fc7f7c3ff560f428b181b139d76a577e3",
+                "url": "https://api.github.com/repos/amphp/dns/zipball/2c8133a7b4267ba570f473abe4b08b01a0c8238a",
+                "reference": "2c8133a7b4267ba570f473abe4b08b01a0c8238a",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^2",
                 "amphp/byte-stream": "^1.1",
-                "amphp/cache": "^1",
-                "amphp/file": "^0.2",
+                "amphp/cache": "^1.2",
+                "amphp/file": "^0.2 || ^0.3",
                 "amphp/parser": "^1",
                 "amphp/uri": "^0.1",
                 "amphp/windows-registry": "^0.3",
-                "daverandom/libdns": "^1",
+                "daverandom/libdns": "^2.0.1",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -318,26 +320,26 @@
                 "dns",
                 "resolve"
             ],
-            "time": "2017-07-01T13:44:10+00:00"
+            "time": "2018-01-10T16:26:11+00:00"
         },
         {
             "name": "amphp/file",
-            "version": "v0.2.2",
+            "version": "v0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/file.git",
-                "reference": "5bac9ec7256ccbc159e52b995a8adc2187d12a22"
+                "reference": "fb58fe8dd5d1eeae5af152bf9e37731de5423caf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/file/zipball/5bac9ec7256ccbc159e52b995a8adc2187d12a22",
-                "reference": "5bac9ec7256ccbc159e52b995a8adc2187d12a22",
+                "url": "https://api.github.com/repos/amphp/file/zipball/fb58fe8dd5d1eeae5af152bf9e37731de5423caf",
+                "reference": "fb58fe8dd5d1eeae5af152bf9e37731de5423caf",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^2",
                 "amphp/byte-stream": "^1",
-                "amphp/parallel": "^0.1.5"
+                "amphp/parallel": "^0.2"
             },
             "require-dev": {
                 "amphp/phpunit-util": "^1",
@@ -384,27 +386,28 @@
                 "non-blocking",
                 "static"
             ],
-            "time": "2017-07-06T21:51:20+00:00"
+            "time": "2017-12-15T04:36:16+00:00"
         },
         {
             "name": "amphp/parallel",
-            "version": "v0.1.7",
+            "version": "v0.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/parallel.git",
-                "reference": "c22d2838c7f8a90d5c692c7c3c480b312e162d9d"
+                "reference": "11a3e27db536f70984ee3fc988c22a5b2aa300ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/parallel/zipball/c22d2838c7f8a90d5c692c7c3c480b312e162d9d",
-                "reference": "c22d2838c7f8a90d5c692c7c3c480b312e162d9d",
+                "url": "https://api.github.com/repos/amphp/parallel/zipball/11a3e27db536f70984ee3fc988c22a5b2aa300ac",
+                "reference": "11a3e27db536f70984ee3fc988c22a5b2aa300ac",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^2",
-                "amphp/byte-stream": "^1.1",
+                "amphp/byte-stream": "^1.2",
                 "amphp/parser": "^1",
-                "amphp/process": "^0.2"
+                "amphp/process": "^0.2 || ^0.3",
+                "amphp/sync": "^1.0.1"
             },
             "require-dev": {
                 "amphp/phpunit-util": "^1",
@@ -412,17 +415,9 @@
                 "phpunit/phpunit": "^6"
             },
             "suggest": {
-                "ext-pcntl": "Required for fork contexts",
-                "ext-pthreads": "Required for thread contexts",
-                "ext-sysvsem": "Required for fork synchronization",
-                "ext-sysvshm": "Required for fork contexts"
+                "ext-pthreads": "Required for thread contexts"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.1.x-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Amp\\Parallel\\": "lib"
@@ -454,7 +449,7 @@
                 "multi-processing",
                 "multi-threading"
             ],
-            "time": "2017-06-29T04:59:24+00:00"
+            "time": "2018-01-31T17:31:36+00:00"
         },
         {
             "name": "amphp/parser",
@@ -509,33 +504,36 @@
         },
         {
             "name": "amphp/process",
-            "version": "v0.2.0",
+            "version": "v0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/process.git",
-                "reference": "cc85c607b90ae33f97f3630ede5477cc7fa29a99"
+                "reference": "55bf8487677c0d2e14b46a78eea61a259a04b24d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/process/zipball/cc85c607b90ae33f97f3630ede5477cc7fa29a99",
-                "reference": "cc85c607b90ae33f97f3630ede5477cc7fa29a99",
+                "url": "https://api.github.com/repos/amphp/process/zipball/55bf8487677c0d2e14b46a78eea61a259a04b24d",
+                "reference": "55bf8487677c0d2e14b46a78eea61a259a04b24d",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^2",
-                "amphp/byte-stream": "^1"
+                "amphp/byte-stream": "^1",
+                "php": ">=7"
             },
             "require-dev": {
                 "amphp/phpunit-util": "^1",
                 "friendsofphp/php-cs-fixer": "^2.3",
-                "kelunik/fqn-check": "^0.1.3",
                 "phpunit/phpunit": "^6"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Amp\\Process\\": "lib"
-                }
+                },
+                "files": [
+                    "lib/constants.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -547,26 +545,30 @@
                     "email": "bobwei9@hotmail.com"
                 },
                 {
+                    "name": "Niklas Keller",
+                    "email": "me@kelunik.com"
+                },
+                {
                     "name": "Aaron Piotrowski",
                     "email": "aaron@trowski.com"
                 }
             ],
-            "description": "Asynchronous process manager",
+            "description": "Asynchronous process manager.",
             "homepage": "https://github.com/amphp/process",
-            "time": "2017-06-16T03:53:33+00:00"
+            "time": "2017-12-05T21:53:41+00:00"
         },
         {
             "name": "amphp/react-adapter",
-            "version": "v1.0.0",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/react-adapter.git",
-                "reference": "d8ba469d35cd94d5b90cffd2ce0a2e977c8a2ef7"
+                "reference": "c54710930add61eae97c596e3d2d76830e394ae9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/react-adapter/zipball/d8ba469d35cd94d5b90cffd2ce0a2e977c8a2ef7",
-                "reference": "d8ba469d35cd94d5b90cffd2ce0a2e977c8a2ef7",
+                "url": "https://api.github.com/repos/amphp/react-adapter/zipball/c54710930add61eae97c596e3d2d76830e394ae9",
+                "reference": "c54710930add61eae97c596e3d2d76830e394ae9",
                 "shasum": ""
             },
             "require": {
@@ -594,20 +596,20 @@
                 }
             ],
             "description": "Adapter to make any ReactPHP library compatible with Amp.",
-            "time": "2017-06-15T16:46:19+00:00"
+            "time": "2017-09-14T15:38:41+00:00"
         },
         {
             "name": "amphp/socket",
-            "version": "v0.10.2",
+            "version": "v0.10.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/socket.git",
-                "reference": "e58766bf0caa59bfa6ba56be260438af109eaea1"
+                "reference": "937aff6eaa08cd4da03d475d98bcf911bbb854ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/socket/zipball/e58766bf0caa59bfa6ba56be260438af109eaea1",
-                "reference": "e58766bf0caa59bfa6ba56be260438af109eaea1",
+                "url": "https://api.github.com/repos/amphp/socket/zipball/937aff6eaa08cd4da03d475d98bcf911bbb854ab",
+                "reference": "937aff6eaa08cd4da03d475d98bcf911bbb854ab",
                 "shasum": ""
             },
             "require": {
@@ -661,20 +663,76 @@
                 "tcp",
                 "tls"
             ],
-            "time": "2017-07-03T10:48:49+00:00"
+            "time": "2017-12-19T18:19:46+00:00"
         },
         {
-            "name": "amphp/uri",
-            "version": "v0.1.1",
+            "name": "amphp/sync",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/amphp/uri.git",
-                "reference": "59b0d5df331f7a02da8b1c7f2d092c4722e97aa9"
+                "url": "https://github.com/amphp/sync.git",
+                "reference": "a1d8f244eb19e3e2a96abc4686cebc80995bbc90"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/uri/zipball/59b0d5df331f7a02da8b1c7f2d092c4722e97aa9",
-                "reference": "59b0d5df331f7a02da8b1c7f2d092c4722e97aa9",
+                "url": "https://api.github.com/repos/amphp/sync/zipball/a1d8f244eb19e3e2a96abc4686cebc80995bbc90",
+                "reference": "a1d8f244eb19e3e2a96abc4686cebc80995bbc90",
+                "shasum": ""
+            },
+            "require": {
+                "amphp/amp": "^2"
+            },
+            "require-dev": {
+                "amphp/phpunit-util": "^1",
+                "friendsofphp/php-cs-fixer": "^2.3",
+                "phpunit/phpunit": "^6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Amp\\Sync\\": "lib"
+                },
+                "files": [
+                    "lib/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stephen Coakley",
+                    "email": "me@stephencoakley.com"
+                },
+                {
+                    "name": "Aaron Piotrowski",
+                    "email": "aaron@trowski.com"
+                }
+            ],
+            "description": "Mutex, Semaphore, and other synchronization tools for Amp.",
+            "homepage": "https://github.com/amphp/sync",
+            "keywords": [
+                "async",
+                "asynchronous",
+                "mutex",
+                "semaphore",
+                "synchronization"
+            ],
+            "time": "2017-11-29T21:48:53+00:00"
+        },
+        {
+            "name": "amphp/uri",
+            "version": "v0.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/amphp/uri.git",
+                "reference": "b857ba4df3cf0852302ba1637fccce4ce1205241"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/amphp/uri/zipball/b857ba4df3cf0852302ba1637fccce4ce1205241",
+                "reference": "b857ba4df3cf0852302ba1637fccce4ce1205241",
                 "shasum": ""
             },
             "require-dev": {
@@ -705,25 +763,25 @@
             ],
             "description": "Uri Parser and Resolver.",
             "homepage": "https://github.com/amphp/uri",
-            "time": "2017-06-24T07:41:03+00:00"
+            "time": "2017-10-23T12:40:35+00:00"
         },
         {
             "name": "amphp/windows-registry",
-            "version": "v0.3.0",
+            "version": "v0.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/windows-registry.git",
-                "reference": "9a5957ee3694c6d78440acd5a1c7adbd2d749de7"
+                "reference": "46ba1463dfffc8081b4b483fac05d3f51ecb1d87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/windows-registry/zipball/9a5957ee3694c6d78440acd5a1c7adbd2d749de7",
-                "reference": "9a5957ee3694c6d78440acd5a1c7adbd2d749de7",
+                "url": "https://api.github.com/repos/amphp/windows-registry/zipball/46ba1463dfffc8081b4b483fac05d3f51ecb1d87",
+                "reference": "46ba1463dfffc8081b4b483fac05d3f51ecb1d87",
                 "shasum": ""
             },
             "require": {
                 "amphp/amp": "^2",
-                "amphp/process": "^0.2"
+                "amphp/process": "^0.2 || ^0.3"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.3"
@@ -745,30 +803,37 @@
                 }
             ],
             "description": "Windows Registry Reader.",
-            "time": "2017-06-16T08:55:58+00:00"
+            "time": "2017-12-11T08:35:51+00:00"
         },
         {
             "name": "daverandom/libdns",
-            "version": "v1.1.0",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DaveRandom/LibDNS.git",
-                "reference": "67de5497e84d179dffc089c5eb6a1945eb4e9460"
+                "reference": "1ecd825b6fa9bb3fddc07751997e29dc78749b95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DaveRandom/LibDNS/zipball/67de5497e84d179dffc089c5eb6a1945eb4e9460",
-                "reference": "67de5497e84d179dffc089c5eb6a1945eb4e9460",
+                "url": "https://api.github.com/repos/DaveRandom/LibDNS/zipball/1ecd825b6fa9bb3fddc07751997e29dc78749b95",
+                "reference": "1ecd825b6fa9bb3fddc07751997e29dc78749b95",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "ext-ctype": "*",
+                "php": ">=7.0"
+            },
+            "suggest": {
+                "ext-intl": "Required for IDN support"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "LibDNS\\": "src/"
-                }
+                },
+                "files": [
+                    "src/functions.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -778,31 +843,29 @@
             "keywords": [
                 "dns"
             ],
-            "time": "2016-04-29T20:47:45+00:00"
+            "time": "2018-01-10T15:56:17+00:00"
         },
         {
             "name": "evenement/evenement",
-            "version": "v2.0.0",
+            "version": "v3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/igorw/evenement.git",
-                "reference": "f6e843799fd4f4184d54d8fc7b5b3551c9fa803e"
+                "reference": "531bfb9d15f8aa57454f5f0285b18bec903b8fb7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/igorw/evenement/zipball/f6e843799fd4f4184d54d8fc7b5b3551c9fa803e",
-                "reference": "f6e843799fd4f4184d54d8fc7b5b3551c9fa803e",
+                "url": "https://api.github.com/repos/igorw/evenement/zipball/531bfb9d15f8aa57454f5f0285b18bec903b8fb7",
+                "reference": "531bfb9d15f8aa57454f5f0285b18bec903b8fb7",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.4.0"
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.0"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0-dev"
-                }
-            },
             "autoload": {
                 "psr-0": {
                     "Evenement": "src"
@@ -815,8 +878,7 @@
             "authors": [
                 {
                     "name": "Igor Wiedler",
-                    "email": "igor@wiedler.ch",
-                    "homepage": "http://wiedler.ch/igor/"
+                    "email": "igor@wiedler.ch"
                 }
             ],
             "description": "Événement is a very simple event dispatching library for PHP",
@@ -824,7 +886,7 @@
                 "event-dispatcher",
                 "event-emitter"
             ],
-            "time": "2012-11-02T14:49:47+00:00"
+            "time": "2017-07-23T21:35:13+00:00"
         },
         {
             "name": "kelunik/certificate",
@@ -955,27 +1017,28 @@
         },
         {
             "name": "phergie/phergie-irc-bot-react",
-            "version": "2.1.0",
+            "version": "2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-bot-react.git",
-                "reference": "11ecece5954668bb55bd0fb96b4b8cedbd64e43c"
+                "reference": "4608377dcee8ebc7bfd8fb475db47e8b7eff25b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phergie/phergie-irc-bot-react/zipball/11ecece5954668bb55bd0fb96b4b8cedbd64e43c",
-                "reference": "11ecece5954668bb55bd0fb96b4b8cedbd64e43c",
+                "url": "https://api.github.com/repos/phergie/phergie-irc-bot-react/zipball/4608377dcee8ebc7bfd8fb475db47e8b7eff25b7",
+                "reference": "4608377dcee8ebc7bfd8fb475db47e8b7eff25b7",
                 "shasum": ""
             },
             "require": {
-                "evenement/evenement": "~2.0",
+                "evenement/evenement": "^3.0 || ^2.0",
                 "monolog/monolog": "~1.6",
                 "phergie/phergie-irc-client-react": "~3.1",
                 "phergie/phergie-irc-connection": "~2.0",
                 "phergie/phergie-irc-event": "~1.0",
-                "php": ">=5.5"
+                "php": ">=5.6.0"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^1.0",
                 "phergie/phergie-irc-bot-react-development": "~1.0"
             },
             "bin": [
@@ -997,20 +1060,20 @@
                 "irc",
                 "react"
             ],
-            "time": "2016-03-07T18:44:52+00:00"
+            "time": "2018-01-15T16:20:59+00:00"
         },
         {
             "name": "phergie/phergie-irc-client-react",
-            "version": "3.2",
+            "version": "3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phergie/phergie-irc-client-react.git",
-                "reference": "db935dccc322f93fae9438857e315e55cbe6b1c5"
+                "reference": "2ed4602c29c63ac0b9a1d4c42292c52a6c2f79f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phergie/phergie-irc-client-react/zipball/db935dccc322f93fae9438857e315e55cbe6b1c5",
-                "reference": "db935dccc322f93fae9438857e315e55cbe6b1c5",
+                "url": "https://api.github.com/repos/phergie/phergie-irc-client-react/zipball/2ed4602c29c63ac0b9a1d4c42292c52a6c2f79f1",
+                "reference": "2ed4602c29c63ac0b9a1d4c42292c52a6c2f79f1",
                 "shasum": ""
             },
             "require": {
@@ -1021,10 +1084,10 @@
                 "php": ">=5.5",
                 "psr/log": "~1.0",
                 "react/dns": "~0.4.0",
-                "react/event-loop": "~0.4.0",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4.0",
                 "react/promise": "~2.0",
-                "react/socket-client": "^0.5",
-                "react/stream": "~0.4.2"
+                "react/socket": "^1.0 || ^0.8 || ^0.7",
+                "react/stream": "^1.0 || ^0.7 || ^0.6 || ^0.5 || ^0.4"
             },
             "conflict": {
                 "phergie/phergie-irc-plugin-react-pong": "*"
@@ -1048,7 +1111,7 @@
                 "irc",
                 "react"
             ],
-            "time": "2017-02-07T19:21:21+00:00"
+            "time": "2017-11-01T14:45:46+00:00"
         },
         {
             "name": "phergie/phergie-irc-connection",
@@ -1397,62 +1460,69 @@
         },
         {
             "name": "react/cache",
-            "version": "v0.4.1",
+            "version": "v0.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/cache.git",
-                "reference": "558f614891341b1d817a8cdf9a358948ec49638f"
+                "reference": "75494f26b4ef089db9bf8c90b63c296246e099e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/cache/zipball/558f614891341b1d817a8cdf9a358948ec49638f",
-                "reference": "558f614891341b1d817a8cdf9a358948ec49638f",
+                "url": "https://api.github.com/repos/reactphp/cache/zipball/75494f26b4ef089db9bf8c90b63c296246e099e8",
+                "reference": "75494f26b4ef089db9bf8c90b63c296246e099e8",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
                 "react/promise": "~2.0|~1.1"
             },
+            "require-dev": {
+                "phpunit/phpunit": "^6.4 || ^5.7 || ^4.8.35"
+            },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "React\\Cache\\": "src\\"
+                    "React\\Cache\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
-            "description": "Async caching.",
+            "description": "Async, Promise-based cache interface for ReactPHP",
             "keywords": [
-                "cache"
+                "cache",
+                "caching",
+                "promise",
+                "reactphp"
             ],
-            "time": "2016-02-25T18:17:16+00:00"
+            "time": "2017-12-20T16:47:13+00:00"
         },
         {
             "name": "react/dns",
-            "version": "v0.4.9",
+            "version": "v0.4.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/dns.git",
-                "reference": "288b4f36972cdc2f81dae1d1a58a0467e3f625cb"
+                "reference": "7d1e08c300fd7de600810883386ee5e2a64898f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/dns/zipball/288b4f36972cdc2f81dae1d1a58a0467e3f625cb",
-                "reference": "288b4f36972cdc2f81dae1d1a58a0467e3f625cb",
+                "url": "https://api.github.com/repos/reactphp/dns/zipball/7d1e08c300fd7de600810883386ee5e2a64898f4",
+                "reference": "7d1e08c300fd7de600810883386ee5e2a64898f4",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
                 "react/cache": "~0.4.0|~0.3.0",
-                "react/promise": "~2.1|~1.2",
-                "react/promise-timer": "~1.1",
-                "react/socket": "^1.0 || ^0.8 || ^0.7 || ^0.6 || ^0.5 || ^0.4.4",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3.5",
+                "react/promise": "^2.1 || ^1.2.1",
+                "react/promise-timer": "^1.2",
                 "react/stream": "^1.0 || ^0.7 || ^0.6 || ^0.5 || ^0.4.5"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.0 || ^4.8.10"
+                "clue/block-react": "^1.2",
+                "phpunit/phpunit": "^6.4 || ^5.7 || ^4.8.35"
             },
             "type": "library",
             "autoload": {
@@ -1466,10 +1536,12 @@
             ],
             "description": "Async DNS resolver for ReactPHP",
             "keywords": [
+                "async",
                 "dns",
-                "dns-resolver"
+                "dns-resolver",
+                "reactphp"
             ],
-            "time": "2017-05-01T17:21:03+00:00"
+            "time": "2018-02-27T12:51:22+00:00"
         },
         {
             "name": "react/event-loop",
@@ -1561,22 +1633,25 @@
         },
         {
             "name": "react/promise-timer",
-            "version": "v1.1.1",
+            "version": "v1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/promise-timer.git",
-                "reference": "ddedc67bfd7f579fc83e66ff67e3564b179297dd"
+                "reference": "9b4cd9cbe7457e0d87fe8aa7ccceab8a2c830fbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise-timer/zipball/ddedc67bfd7f579fc83e66ff67e3564b179297dd",
-                "reference": "ddedc67bfd7f579fc83e66ff67e3564b179297dd",
+                "url": "https://api.github.com/repos/reactphp/promise-timer/zipball/9b4cd9cbe7457e0d87fe8aa7ccceab8a2c830fbd",
+                "reference": "9b4cd9cbe7457e0d87fe8aa7ccceab8a2c830fbd",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3",
-                "react/event-loop": "~0.4.0|~0.3.0",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3.5",
                 "react/promise": "~2.1|~1.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.4 || ^5.7 || ^4.8.35"
             },
             "type": "library",
             "autoload": {
@@ -1597,7 +1672,7 @@
                     "email": "christian@lueck.tv"
                 }
             ],
-            "description": "Trivial timeout implementation for Promises",
+            "description": "A trivial implementation of timeouts for Promises, built on top of ReactPHP.",
             "homepage": "https://github.com/react/promise-timer",
             "keywords": [
                 "async",
@@ -1607,35 +1682,34 @@
                 "timeout",
                 "timer"
             ],
-            "time": "2016-12-27T08:12:19+00:00"
+            "time": "2017-12-22T15:41:41+00:00"
         },
         {
             "name": "react/socket",
-            "version": "v0.8.0",
+            "version": "v0.8.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/socket.git",
-                "reference": "8f880ab1a9e1b2eb236a836aa5e1326da3647bcd"
+                "reference": "d3957313c92b539537fccc80170c05a27ec25796"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/socket/zipball/8f880ab1a9e1b2eb236a836aa5e1326da3647bcd",
-                "reference": "8f880ab1a9e1b2eb236a836aa5e1326da3647bcd",
+                "url": "https://api.github.com/repos/reactphp/socket/zipball/d3957313c92b539537fccc80170c05a27ec25796",
+                "reference": "d3957313c92b539537fccc80170c05a27ec25796",
                 "shasum": ""
             },
             "require": {
-                "evenement/evenement": "~2.0|~1.0",
+                "evenement/evenement": "^3.0 || ^2.0 || ^1.0",
                 "php": ">=5.3.0",
-                "react/dns": "0.4.*|0.3.*",
-                "react/event-loop": "0.4.*|0.3.*",
+                "react/dns": "^0.4.13",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3.5",
                 "react/promise": "^2.1 || ^1.2",
                 "react/promise-timer": "~1.0",
-                "react/stream": "^1.0 || ^0.7 || ^0.6 || ^0.5 || ^0.4.5"
+                "react/stream": "^1.0 || ^0.7.1"
             },
             "require-dev": {
-                "clue/block-react": "^1.1",
-                "phpunit/phpunit": "~4.8",
-                "react/stream": "^1.0 || ^0.7 || ^0.6"
+                "clue/block-react": "^1.2",
+                "phpunit/phpunit": "^6.4 || ^5.7 || ^4.8.35"
             },
             "type": "library",
             "autoload": {
@@ -1655,75 +1729,30 @@
                 "reactphp",
                 "stream"
             ],
-            "time": "2017-05-09T11:27:38+00:00"
-        },
-        {
-            "name": "react/socket-client",
-            "version": "v0.5.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/reactphp/socket-client.git",
-                "reference": "5570838d436f056695e9a5eaf01dd5f80386dd26"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/socket-client/zipball/5570838d436f056695e9a5eaf01dd5f80386dd26",
-                "reference": "5570838d436f056695e9a5eaf01dd5f80386dd26",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0",
-                "react/dns": "0.4.*|0.3.*",
-                "react/event-loop": "0.4.*|0.3.*",
-                "react/promise": "^2.1 || ^1.2",
-                "react/promise-timer": "~1.0",
-                "react/stream": "^0.4.5"
-            },
-            "require-dev": {
-                "clue/block-react": "^1.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "React\\SocketClient\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Async connector to open TCP/IP and SSL/TLS based connections.",
-            "keywords": [
-                "Socket"
-            ],
-            "time": "2016-12-24T11:19:15+00:00"
+            "time": "2018-02-28T09:32:38+00:00"
         },
         {
             "name": "react/stream",
-            "version": "v0.4.6",
+            "version": "v0.7.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/stream.git",
-                "reference": "44dc7f51ea48624110136b535b9ba44fd7d0c1ee"
+                "reference": "10100896018fd847a257cd81143b8e1b7be08e40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/stream/zipball/44dc7f51ea48624110136b535b9ba44fd7d0c1ee",
-                "reference": "44dc7f51ea48624110136b535b9ba44fd7d0c1ee",
+                "url": "https://api.github.com/repos/reactphp/stream/zipball/10100896018fd847a257cd81143b8e1b7be08e40",
+                "reference": "10100896018fd847a257cd81143b8e1b7be08e40",
                 "shasum": ""
             },
             "require": {
-                "evenement/evenement": "^2.0|^1.0",
-                "php": ">=5.3.8"
+                "evenement/evenement": "^3.0 || ^2.0 || ^1.0",
+                "php": ">=5.3.8",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3.5"
             },
             "require-dev": {
                 "clue/stream-filter": "~1.2",
-                "react/event-loop": "^0.4|^0.3",
-                "react/promise": "^2.0|^1.0"
-            },
-            "suggest": {
-                "react/event-loop": "^0.4",
-                "react/promise": "^2.0"
+                "phpunit/phpunit": "^6.4 || ^5.7 || ^4.8.35"
             },
             "type": "library",
             "autoload": {
@@ -1735,32 +1764,41 @@
             "license": [
                 "MIT"
             ],
-            "description": "Basic readable and writable stream interfaces that support piping.",
+            "description": "Event-driven readable and writable streams for non-blocking I/O in ReactPHP",
             "keywords": [
+                "event-driven",
+                "io",
+                "non-blocking",
                 "pipe",
-                "stream"
+                "reactphp",
+                "readable",
+                "stream",
+                "writable"
             ],
-            "time": "2017-01-25T14:44:14+00:00"
+            "time": "2018-01-19T15:04:38+00:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.3.4",
+            "version": "v3.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "1f93a8d19b8241617f5074a123e282575b821df8"
+                "reference": "6af42631dcf89e9c616242c900d6c52bd53bd1bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/1f93a8d19b8241617f5074a123e282575b821df8",
-                "reference": "1f93a8d19b8241617f5074a123e282575b821df8",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/6af42631dcf89e9c616242c900d6c52bd53bd1bb",
+                "reference": "6af42631dcf89e9c616242c900d6c52bd53bd1bb",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.5.9"
+                "php": "^5.5.9|>=7.0.8"
+            },
+            "conflict": {
+                "symfony/console": "<3.4"
             },
             "require-dev": {
-                "symfony/console": "~2.8|~3.0"
+                "symfony/console": "~3.4|~4.0"
             },
             "suggest": {
                 "symfony/console": "For validating YAML files using the lint command"
@@ -1768,7 +1806,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.3-dev"
+                    "dev-master": "3.4-dev"
                 }
             },
             "autoload": {
@@ -1795,7 +1833,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-15T12:58:50+00:00"
+            "time": "2018-02-16T09:50:28+00:00"
         }
     ],
     "packages-dev": [],
