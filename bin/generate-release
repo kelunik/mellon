@@ -10,7 +10,6 @@ $textSecondary = \imagecolorallocate($handle, 80, 80, 80);
 
 $font = __DIR__ . "/../res/yanone-kaffeesatz.ttf";
 
-
 $size = \imagettfbbox(60, 0, $font, $argv[1]);
 \imagettftext($handle, 60, 0, 450 - ($size[2] - $size[0]) / 2, 115, $textPrimary, $font, $argv[1]);
 

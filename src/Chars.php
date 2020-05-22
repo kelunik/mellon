@@ -2,10 +2,10 @@
 
 namespace Kelunik\Mellon;
 
-class Chars {
-    const SAILBOAT = "⛵";
-    const FLAG_IN_HOLE = "⛳";
-    const TWO_WAY_TRAFFIC = "⛖";
-    const GEAR = "⚙";
-    const HIGH_VOLTAGE = "⚡";
+final class Chars {
+    public const SAILBOAT = "⛵";
+    public const FLAG_IN_HOLE = "⛳";
+    public const TWO_WAY_TRAFFIC = "⛖";
+    public const GEAR = "⚙";
+    public const HIGH_VOLTAGE = "⚡";
 }

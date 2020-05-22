@@ -2,53 +2,63 @@
 
 namespace Kelunik\Mellon\Twitter;
 
-use Amp\Artax\Client;
-use Amp\Artax\FormBody;
-use Amp\Artax\HttpException;
-use Amp\Artax\Request;
-use Amp\Artax\Response;
+use Amp\Http\Client\Body\FormBody;
+use Amp\Http\Client\HttpClient;
+use Amp\Http\Client\HttpException;
+use Amp\Http\Client\Request;
+use Amp\Http\Client\Response;
 use Amp\Promise;
-use Amp\Uri\Uri;
+use League\Uri\Parser\QueryString;
 use function Amp\call;
 
-class TwitterClient {
-    private $http;
-    private $consumerKey;
-    private $consumerSecret;
-    private $accessToken;
-    private $accessTokenSecret;
+final class TwitterClient
+{
+    private HttpClient $httpClient;
+    private string $consumerKey;
+    private string $consumerSecret;
+    private string $accessToken;
+    private string $accessTokenSecret;
 
-    public function __construct(Client $http, string $consumerKey, string $consumerSecret, string $accessToken, string $accessTokenSecret) {
-        $this->http = $http;
+    public function __construct(
+        HttpClient $httpClient,
+        string $consumerKey,
+        string $consumerSecret,
+        string $accessToken,
+        string $accessTokenSecret
+    ) {
+        $this->httpClient = $httpClient;
         $this->consumerKey = $consumerKey;
         $this->consumerSecret = $consumerSecret;
         $this->accessToken = $accessToken;
         $this->accessTokenSecret = $accessTokenSecret;
     }
 
-    public function uploadImage(string $path): Promise {
+    public function uploadImage(string $path): Promise
+    {
         $body = new FormBody;
         $body->addFile("media", $path);
 
-        $request = (new Request("https://upload.twitter.com/1.1/media/upload.json", "POST"))->withBody($body);
-        $request = $this->signRequest($request);
+        $request = new Request("https://upload.twitter.com/1.1/media/upload.json", "POST");
+        $request->setBody($body);
+        $request->setHeader("authorization", $this->signRequest($request));
 
         return call(function () use ($request) {
             /** @var Response $response */
-            $response = yield $this->http->request($request);
+            $response = yield $this->httpClient->request($request);
 
             if ($response->getStatus() !== 200) {
                 throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
             }
 
             $body = yield $response->getBody();
-            $data = \json_decode($body, true);
+            $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
             return $data["media_id"];
         });
     }
 
-    public function tweet(string $text, array $mediaIds = []): Promise {
+    public function tweet(string $text, array $mediaIds = []): Promise
+    {
         $params = [
             "status" => $text,
             "enable_dm_commands" => "false",
@@ -59,42 +69,42 @@ class TwitterClient {
         $body->addFields($params);
 
         $request = new Request("https://api.twitter.com/1.1/statuses/update.json", "POST");
-        $request = $this->signRequest($request->withBody($body), $params);
+        $request->setBody($body);
+        $request->setHeader("authorization", $this->signRequest($request, $params));
 
         return call(function () use ($request) {
             /** @var Response $response */
-            $response = yield $this->http->request($request);
+            $response = yield $this->httpClient->request($request);
 
             if ($response->getStatus() !== 200) {
-                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
+                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody()->buffer());
             }
 
-            $body = yield $response->getBody();
-            $data = \json_decode($body, true);
+            $body = yield $response->getBody()->buffer();
 
-            return $data;
+            return \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
         });
     }
 
-    public function requestAccessToken() {
+    public function requestAccessToken(): Promise
+    {
         $request = new Request("https://api.twitter.com/oauth/request_token", "POST");
-        $request = $this->signRequest($request);
+        $request->setHeader("authorization", $this->signRequest($request));
 
         return call(function () use ($request) {
             /** @var Response $response */
-            $response = yield $this->http->request($request);
+            $response = yield $this->httpClient->request($request);
 
             if ($response->getStatus() !== 200) {
                 throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
             }
 
-            $body = yield $response->getBody();
-
-            return $body;
+            return yield $response->getBody()->buffer();
         });
     }
 
-    public function verifyAccessToken(string $verifier) {
+    public function verifyAccessToken(string $verifier): Promise
+    {
         $params = [
             "oauth_verifier" => $verifier,
         ];
@@ -103,25 +113,26 @@ class TwitterClient {
         $body->addFields($params);
 
         $request = new Request("https://api.twitter.com/oauth/access_token", "POST");
-        $request = $this->signRequest($request->withBody($body), $params);
+        $request->setBody($body);
+        $request->setHeader("authorization", $this->signRequest($request, $params));
 
         return call(function () use ($request) {
             /** @var Response $response */
-            $response = yield $this->http->request($request);
+            $response = yield $this->httpClient->request($request);
 
             if ($response->getStatus() !== 200) {
                 throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
             }
 
-            $body = yield $response->getBody();
-
-            return $body;
+            return yield $response->getBody()->buffer();
         });
     }
 
-    private function signRequest(Request $request, array $additionalParams = []): Request {
-        $nonce = bin2hex(random_bytes(16));
-        $timestamp = time();
+    private function signRequest(Request $request, array $additionalParams = []): string
+    {
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $nonce = \bin2hex(\random_bytes(16));
+        $timestamp = \time();
 
         $params = [
             "oauth_consumer_key" => $this->consumerKey,
@@ -135,30 +146,33 @@ class TwitterClient {
         $authorization = "OAuth ";
 
         foreach ($params as $key => $param) {
-            $authorization .= rawurlencode($key) . '="' . rawurlencode($param) . '", ';
+            $authorization .= \rawurlencode($key) . '="' . \rawurlencode($param) . '", ';
         }
 
-        $uri = new Uri($request->getUri());
+        $uri = $request->getUri();
 
-        $queryParams = $uri->getAllQueryParameters();
+        $queryParams = QueryString::extract($uri->getQuery());
         $encodedParams = [];
 
-        foreach (array_merge($params, $queryParams, $additionalParams) as $key => $value) {
+        foreach (\array_merge($params, $queryParams, $additionalParams) as $key => $value) {
             $encodedParams[\rawurlencode($key)] = \rawurlencode(\is_array($value) ? $value[0] : $value);
         }
 
-        asort($encodedParams);
-        ksort($encodedParams);
+        \asort($encodedParams);
+        \ksort($encodedParams);
 
         $query = [];
-
         foreach ($encodedParams as $key => $value) {
             $query[] = "$key=$value";
         }
 
-        $signingData = $request->getMethod() . "&" . \rawurlencode(\strtok($request->getUri(), "?")) . "&" . \rawurlencode(\implode("&", $query));
-        $signature = base64_encode(hash_hmac("sha1", $signingData, \rawurlencode($this->consumerSecret) . "&" . \rawurlencode($this->accessTokenSecret), true));
+        $signingData = $request->getMethod() . "&" //
+            . \rawurlencode($request->getUri()->withQuery('')) . "&" //
+            . \rawurlencode(\implode("&", $query));
 
-        return $request->withHeader("authorization", $authorization . 'oauth_signature="' . \rawurlencode($signature) . '"');
+        $key = \rawurlencode($this->consumerSecret) . "&" . \rawurlencode($this->accessTokenSecret);
+        $signature = \base64_encode(\hash_hmac("sha1", $signingData, $key, true));
+
+        return $authorization . 'oauth_signature="' . \rawurlencode($signature) . '"';
     }
 }

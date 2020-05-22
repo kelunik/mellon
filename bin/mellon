@@ -1,65 +1,72 @@
 #!/usr/bin/env php
 <?php
 
-use Amp\Artax;
 use Amp\File;
+use Amp\Http\Client\HttpClientBuilder;
+use Amp\Log\ConsoleFormatter;
+use Amp\Log\StreamHandler;
 use Amp\Loop;
 use Amp\MultiReasonException;
-use Auryn\Injector;
-use Kelunik\Mellon\IrcClient;
-use Kelunik\Mellon\Mellon;
+use Kelunik\Mellon\Github\GithubEventWatcher;
 use Kelunik\Mellon\Storage\FileKeyValueStorage;
 use Kelunik\Mellon\Storage\PrefixKeyValueStorage;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\StreamHandler;
+use Kelunik\Mellon\Telegram\RequestHandler;
+use Kelunik\Mellon\Telegram\TelegramClient;
+use Kelunik\Mellon\Twitter\TwitterClient;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
-use Psr\Log\LoggerInterface as PsrLogger;
+use Psr\Log\LogLevel;
 use Symfony\Component\Yaml\Yaml;
+use unreal4u\TelegramAPI\TgLog;
+use function Amp\ByteStream\getStderr;
 
 require __DIR__ . "/../vendor/autoload.php";
 
 // First things first, setup logger, so any error can get logged there
-$handler = new StreamHandler(STDERR, Logger::DEBUG);
-$handler->setFormatter(new LineFormatter("%level_name% %message% %context%\n"));
+$logHandler = new StreamHandler(getStderr(), LogLevel::INFO);
+$logHandler->setFormatter(new ConsoleFormatter("%channel%.%level_name%: %message% %context% %extra%\r\n", null, true));
 
 $logger = new Logger("mellon");
-$logger->pushHandler($handler);
+$logger->pushHandler($logHandler);
 $logger->pushProcessor(new PsrLogMessageProcessor);
 
-// It's important to catch SIGINT, so destructors can run
-Loop::onSignal(\SIGINT, function () use ($logger) {
-    $logger->notice("Caught SIGINT, stopping the event loop now");
-    Loop::stop();
-});
+$shutdownHandler = static function (string $watcherId, int $signal) use ($logger) {
+    static $shuttingDown = false;
 
-// It's important to catch SIGTERM, so destructors can run
-Loop::onSignal(\SIGTERM, function () use ($logger) {
-    $logger->notice("Caught SIGTERM, stopping the event loop now");
-    Loop::stop();
-});
+    $signalName = $signal === \SIGINT ? 'SIGINT' : 'SIGTERM';
 
-// TODO: Investigate whether it's possible to use a single log call with multi-line support.
+    if ($shuttingDown) {
+        $logger->notice("Caught $signalName ($signal), but shutdown is already in progress, please wait...");
+        return;
+    }
+
+    $logger->notice("Caught $signalName ($signal), stopping the event loop...");
+
+    Loop::stop();
+};
+
+// It's important to catch SIGINT / SIGTERM, so destructors can run
+Loop::onSignal(\SIGINT, $shutdownHandler);
+Loop::onSignal(\SIGTERM, $shutdownHandler);
+
 // TODO: Properly log further exceptions as root causes of the first one.
-Loop::setErrorHandler(function (\Throwable $error) use ($logger) {
+Loop::setErrorHandler(static function (\Throwable $error) use ($logger) {
     $errors = [$error];
 
-    while ($error = array_shift($errors)) {
-        $logger->critical("An uncaught exception: " . $error->getMessage());
-
-        foreach (\explode("\n", $error->getTraceAsString()) as $trace) {
-            $logger->critical($trace);
-        }
+    while ($error = \array_shift($errors)) {
+        $logger->critical("An uncaught exception: " . $error->getMessage() . "\r\n" . $error->getTraceAsString(), [
+            'exception' => $error,
+        ]);
 
         if ($error instanceof MultiReasonException) {
-            $errors = array_merge($errors, $error->getReasons());
-        } else if ($error->getPrevious()) {
+            $errors = \array_merge($errors, $error->getReasons());
+        } elseif ($error->getPrevious()) {
             $errors[] = $error->getPrevious();
         }
     }
 });
 
-Loop::run(function () use ($logger) {
+Loop::run(static function () use ($logger) {
     $logger->notice("Starting up...");
 
     $configPath = __DIR__ . "/../config.yml";
@@ -71,41 +78,44 @@ Loop::run(function () use ($logger) {
 
     $logger->notice("Successfully parsed loaded configuration.");
 
-    $mellon = new Mellon($config["irc"]["connection"], $config["irc"]["channels"], new IrcClient($logger));
+    $httpClient = HttpClientBuilder::buildDefault();
+    $telegramClient = new TelegramClient(
+        new TgLog($config['telegram']['auth'], new RequestHandler($httpClient), $logger),
+        $config['telegram']['chat']
+    );
 
-    $injector = new Injector;
-
-    $injector->alias(Artax\Client::class, Artax\DefaultClient::class);
-    $injector->alias(PsrLogger::class, get_class($logger));
-
-    $injector->share(Artax\DefaultClient::class);
-    $injector->share($logger);
-    $injector->share($mellon);
+    $twitterClient = new TwitterClient($httpClient, $config['twitter']['consumerKey'],
+        $config['twitter']['consumerSecret'], $config['twitter']['accessToken'],
+        $config['twitter']['accessTokenSecret']);
 
     $storage = new FileKeyValueStorage(__DIR__ . "/../data/mellon.json");
+
     $plugins = [];
+    $plugins[] = new GithubEventWatcher(
+        $logger->withName('github.watch.amphp'),
+        $httpClient,
+        $telegramClient,
+        $twitterClient,
+        new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.amphp.'),
+        5,
+        $config['github']['clientId'],
+        $config['github']['clientSecret'],
+        'amphp'
+    );
 
-    foreach ($config["plugins"] as $plugin => $pluginConfig) {
-        $makeConfig = [];
-
-        foreach ($pluginConfig as $paramName => $paramValue) {
-            $makeConfig[":" . $paramName] = $paramValue;
-        }
-
-        $makeConfig["+storage"] = function () use ($plugin, $storage) {
-            return new PrefixKeyValueStorage($storage, \strtolower(strtr($plugin, "\\", ".")) . ".");
-        };
-
-        $plugins[] = $injector->make($plugin, $makeConfig);
-
-        $logger->notice("Successfully loaded plugin '{pluginName}'.", [
-            "pluginName" => $plugin,
-        ]);
-    }
-
-    $mellon->start($plugins);
+    $plugins[] = new GithubEventWatcher(
+        $logger->withName('github.watch.reactphp'),
+        $httpClient,
+        $telegramClient,
+        null,
+        new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.reactphp.'),
+        5,
+        $config['github']['clientId'],
+        $config['github']['clientSecret'],
+        'reactphp'
+    );
 });
 
-$logger->notice("Event loop stopped, going to exit now");
+$logger->notice("Event loop stopped, goodbye!");
 
 exit(0);

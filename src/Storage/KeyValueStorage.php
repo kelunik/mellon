@@ -2,7 +2,8 @@
 
 namespace Kelunik\Mellon\Storage;
 
-interface KeyValueStorage {
+interface KeyValueStorage
+{
     public function has(string $key): bool;
 
     public function get(string $key);
