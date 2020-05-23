@@ -44,7 +44,6 @@ class GithubEventWatcher
         $this->storage = $storage;
         $this->interval = $interval;
 
-
         $this->watchGitHub($githubOrganization, $githubClientId, $githubClientSecret);
     }
 
@@ -95,10 +94,11 @@ class GithubEventWatcher
                     if ($event["type"] === "ReleaseEvent") {
                         if ($event["payload"]["action"] === "published") {
                             yield $this->send(
-                                "⛵ %s released %s for %s.",
+                                "%s released %s %s. %s",
                                 $event["actor"]["login"],
-                                $event["payload"]["release"]["tag_name"],
                                 $event["repo"]["name"],
+                                $event["payload"]["release"]["tag_name"],
+                                $event["payload"]["release"]["html_url"]
                             );
 
                             if ($this->twitterClient !== null && \strtok($event["repo"]["name"], "/") === "amphp") {
@@ -147,25 +147,22 @@ class GithubEventWatcher
                         }
                     } elseif ($event["type"] === "IssuesEvent") {
                         yield $this->send(
-                            "🛈 %s %s %s (%s).",
+                            "%s %s %s (%s).",
                             $event["actor"]["login"],
                             $event["payload"]["action"],
                             $event["payload"]["issue"]["html_url"],
                             $event["payload"]["issue"]["title"]
                         );
                     } elseif ($event["type"] === "PullRequestEvent") {
-                        $icons = [
-                            "opened" => "⇢",
-                            "closed" => $event["payload"]["pull_request"]["merged"] ? "↣" : "↛",
-                        ];
-
-                        $icon = $icons[$event["payload"]["action"]] ?? "⚡";
+                        $action = $event['payload']['action'];
+                        if ($event["payload"]["pull_request"]["merged"]) {
+                            $action = 'merged';
+                        }
 
                         yield $this->send(
-                            "%s %s %s %s (%s).",
-                            $icon,
+                            "%s %s %s (%s).",
                             $event["actor"]["login"],
-                            $event["payload"]["action"],
+                            $action,
                             $event["payload"]["pull_request"]["html_url"],
                             $event["payload"]["pull_request"]["title"]
                         );
