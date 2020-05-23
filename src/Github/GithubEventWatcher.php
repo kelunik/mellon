@@ -155,7 +155,7 @@ class GithubEventWatcher
                         );
                     } elseif ($event["type"] === "PullRequestEvent") {
                         $action = $event['payload']['action'];
-                        if ($event["payload"]["pull_request"]["merged"]) {
+                        if ($action === 'closed' && $event["payload"]["pull_request"]["merged"]) {
                             $action = 'merged';
                         }
 
