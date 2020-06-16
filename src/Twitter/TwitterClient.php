@@ -47,10 +47,10 @@ final class TwitterClient
             $response = yield $this->httpClient->request($request);
 
             if ($response->getStatus() !== 200) {
-                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
+                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody()->buffer());
             }
 
-            $body = yield $response->getBody();
+            $body = yield $response->getBody()->buffer();
             $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
             return $data["media_id"];
@@ -96,7 +96,7 @@ final class TwitterClient
             $response = yield $this->httpClient->request($request);
 
             if ($response->getStatus() !== 200) {
-                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
+                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody()->buffer());
             }
 
             return yield $response->getBody()->buffer();
@@ -121,7 +121,7 @@ final class TwitterClient
             $response = yield $this->httpClient->request($request);
 
             if ($response->getStatus() !== 200) {
-                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody());
+                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody()->buffer());
             }
 
             return yield $response->getBody()->buffer();
