@@ -24,7 +24,7 @@ final class TelegramClient
             $request = new SendMessage;
             $request->chat_id = $this->chatId;
             $request->text = $text;
-            $request->disable_web_page_preview = true;
+            $request->disable_web_page_preview = false;
             $request->disable_notification = true;
 
             yield $this->telegram->performApiRequest($request);
