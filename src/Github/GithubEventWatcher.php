@@ -8,7 +8,6 @@ use Amp\Http\Client\Request;
 use Amp\Http\Client\Response;
 use Amp\Loop;
 use Amp\Process\Process;
-use Amp\Promise;
 use Kelunik\Mellon\Storage\KeyValueStorage;
 use Kelunik\Mellon\Telegram\TelegramClient;
 use Kelunik\Mellon\Twitter\TwitterClient;
@@ -21,7 +20,8 @@ class GithubEventWatcher
 {
     private PsrLogger $logger;
     private HttpClient $httpClient;
-    private TelegramClient $telegramClient;
+    private TelegramClient $defaultTelegramClient;
+    private TelegramClient $releaseTelegramClient;
     private ?TwitterClient $twitterClient;
     private KeyValueStorage $storage;
     private int $interval;
@@ -29,7 +29,8 @@ class GithubEventWatcher
     public function __construct(
         PsrLogger $logger,
         HttpClient $httpClient,
-        TelegramClient $telegramClient,
+        TelegramClient $defaultTelegramClient,
+        TelegramClient $releaseTelegramClient,
         ?TwitterClient $twitterClient,
         KeyValueStorage $storage,
         int $interval,
@@ -39,7 +40,8 @@ class GithubEventWatcher
     ) {
         $this->logger = $logger;
         $this->httpClient = $httpClient;
-        $this->telegramClient = $telegramClient;
+        $this->defaultTelegramClient = $defaultTelegramClient;
+        $this->releaseTelegramClient = $releaseTelegramClient;
         $this->twitterClient = $twitterClient;
         $this->storage = $storage;
         $this->interval = $interval;
@@ -93,13 +95,13 @@ class GithubEventWatcher
 
                     if ($event["type"] === "ReleaseEvent") {
                         if ($event["payload"]["action"] === "published") {
-                            yield $this->send(
+                            yield $this->releaseTelegramClient->sendMessage(\sprintf(
                                 "%s released %s %s. %s",
                                 $event["actor"]["login"],
                                 $event["repo"]["name"],
                                 $event["payload"]["release"]["tag_name"],
                                 $event["payload"]["release"]["html_url"]
-                            );
+                            ));
 
                             if ($this->twitterClient !== null && \strtok($event["repo"]["name"], "/") === "amphp") {
                                 rethrow(call(function () use ($event) {
@@ -146,35 +148,30 @@ class GithubEventWatcher
                             }
                         }
                     } elseif ($event["type"] === "IssuesEvent") {
-                        yield $this->send(
+                        yield $this->defaultTelegramClient->sendMessage(\sprintf(
                             "%s %s %s (%s).",
                             $event["actor"]["login"],
                             $event["payload"]["action"],
                             $event["payload"]["issue"]["html_url"],
                             $event["payload"]["issue"]["title"]
-                        );
+                        ));
                     } elseif ($event["type"] === "PullRequestEvent") {
                         $action = $event['payload']['action'];
                         if ($action === 'closed' && $event["payload"]["pull_request"]["merged"]) {
                             $action = 'merged';
                         }
 
-                        yield $this->send(
+                        yield $this->defaultTelegramClient->sendMessage(\sprintf(
                             "%s %s %s (%s).",
                             $event["actor"]["login"],
                             $action,
                             $event["payload"]["pull_request"]["html_url"],
                             $event["payload"]["pull_request"]["title"]
-                        );
+                        ));
                     }
                 }
 
                 $this->storage->set("last-id.{$githubOrganization}", $lastId);
             });
-    }
-
-    private function send(string $format, ...$args): Promise
-    {
-        return $this->telegramClient->sendMessage(\sprintf($format, ...$args));
     }
 }

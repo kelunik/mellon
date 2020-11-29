@@ -79,9 +79,17 @@ Loop::run(static function () use ($logger) {
     $logger->notice("Successfully parsed loaded configuration.");
 
     $httpClient = HttpClientBuilder::buildDefault();
-    $telegramClient = new TelegramClient(
+
+    $defaultTelegramClient = new TelegramClient(
         new TgLog($config['telegram']['auth'], new RequestHandler($httpClient), $logger),
         $config['telegram']['chat']
+    );
+
+    $defaultTelegramClient->disableUrlPreview();
+
+    $releaseTelegramClient = new TelegramClient(
+        new TgLog($config['telegram']['auth'], new RequestHandler($httpClient), $logger),
+        $config['telegram']['release_chat'] ?? $config['telegram']['chat']
     );
 
     $twitterClient = new TwitterClient($httpClient, $config['twitter']['consumerKey'],
@@ -94,7 +102,8 @@ Loop::run(static function () use ($logger) {
     $plugins[] = new GithubEventWatcher(
         $logger->withName('github.watch.amphp'),
         $httpClient,
-        $telegramClient,
+        $defaultTelegramClient,
+        $releaseTelegramClient,
         $twitterClient,
         new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.amphp.'),
         5,
@@ -106,7 +115,8 @@ Loop::run(static function () use ($logger) {
     $plugins[] = new GithubEventWatcher(
         $logger->withName('github.watch.reactphp'),
         $httpClient,
-        $telegramClient,
+        $defaultTelegramClient,
+        $defaultTelegramClient,
         null,
         new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.reactphp.'),
         5,

@@ -11,6 +11,7 @@ final class TelegramClient
 {
     private string $chatId;
     private TgLog $telegram;
+    private bool $disableUrlPreview = false;
 
     public function __construct(TgLog $telegram, string $chatId)
     {
@@ -24,10 +25,15 @@ final class TelegramClient
             $request = new SendMessage;
             $request->chat_id = $this->chatId;
             $request->text = $text;
-            $request->disable_web_page_preview = false;
+            $request->disable_web_page_preview = $this->disableUrlPreview;
             $request->disable_notification = true;
 
             yield $this->telegram->performApiRequest($request);
         });
+    }
+
+    public function disableUrlPreview(): void
+    {
+        $this->disableUrlPreview = true;
     }
 }
