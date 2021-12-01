@@ -124,6 +124,19 @@ Loop::run(static function () use ($logger) {
         $config['github']['clientSecret'],
         'reactphp'
     );
+
+    $plugins[] = new GithubEventWatcher(
+        $logger->withName('github.watch.revoltphp'),
+        $httpClient,
+        $defaultTelegramClient,
+        $defaultTelegramClient,
+        null,
+        new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.revoltphp.'),
+        5,
+        $config['github']['clientId'],
+        $config['github']['clientSecret'],
+        'revoltphp'
+    );
 });
 
 $logger->notice("Event loop stopped, goodbye!");
