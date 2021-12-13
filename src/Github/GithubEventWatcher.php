@@ -95,16 +95,24 @@ class GithubEventWatcher
 
                     if ($event["type"] === "ReleaseEvent") {
                         if ($event["payload"]["action"] === "published") {
+                            $repo = $event["repo"]["name"];
+                            $tagName = $event['payload']['release']['tag_name'];
+                            $composerUrl = "https://raw.githubusercontent.com/$repo/$tagName/composer.json";
+
+                            /** @var Response $response */
+                            $composerResponse = yield $this->httpClient->request(new Request($composerUrl));
+                            $composerBody = yield $composerResponse->getBody()->buffer();
+
                             yield $this->releaseTelegramClient->sendMessage(\sprintf(
                                 "%s released %s %s. %s",
                                 $event["actor"]["login"],
-                                $event["repo"]["name"],
+                                $repo,
                                 $event["payload"]["release"]["tag_name"],
                                 $event["payload"]["release"]["html_url"]
                             ));
 
                             if ($this->twitterClient !== null && \strtok($event["repo"]["name"], "/") === "amphp") {
-                                rethrow(call(function () use ($event) {
+                                rethrow(call(function () use ($event, $composerBody) {
                                     if ($event["repo"]["name"] === "amphp/windows-process-wrapper") {
                                         return; // ignore releases, as it's only bundled and not a separate package really.
                                     }
@@ -113,6 +121,7 @@ class GithubEventWatcher
 
                                     $process = new Process([
                                         __DIR__ . "/../../bin/generate-release",
+                                        \strpos($composerBody, 'revolt/event-loop') !== false || \strpos($composerBody, 'amphp/amp": "^3') !== false ? 'v3' : 'v2',
                                         $event["repo"]["name"],
                                         $event["payload"]["release"]["tag_name"],
                                     ]);
