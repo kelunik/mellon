@@ -122,7 +122,9 @@ class GithubEventWatcher
                                     $v3 = \strpos($composerBody, 'revolt/event-loop') !== false
                                         || \strpos($composerBody, 'amphp/amp": "^3') !== false
                                         || \strpos($composerBody, 'amphp/byte-stream": "^2') !== false
-                                        || \strpos($composerBody, 'amphp/process": "^2') !== false;
+                                        || \strpos($composerBody, 'amphp/process": "^2') !== false
+                                        || \strpos($composerBody, 'amphp/socket": "^2') !== false
+                                        || \strpos($composerBody, 'amphp/http-server": "^3') !== false;
 
                                     $process = new Process([
                                         __DIR__ . "/../../bin/generate-release",
