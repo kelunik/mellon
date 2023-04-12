@@ -119,7 +119,8 @@ class GithubEventWatcher
 
                                     $imgPath = \tempnam(\sys_get_temp_dir(), "mellon-twitter-release-");
 
-                                    $v3 = \strpos($composerBody, 'revolt/event-loop') !== false
+                                    $v3 = $event['repo']['name'] === 'amphp/http' && \substr($event["payload"]["release"]["tag_name"], 0, 3) !== 'v1.'
+                                        || \strpos($composerBody, 'revolt/event-loop') !== false
                                         || \strpos($composerBody, 'amphp/amp": "^3') !== false
                                         || \strpos($composerBody, 'amphp/byte-stream": "^2') !== false
                                         || \strpos($composerBody, 'amphp/process": "^2') !== false
