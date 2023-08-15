@@ -66,11 +66,8 @@ final class TwitterClient
             ],
         ];
 
-        $body = new FormBody;
-        $body->addFields($params);
-
         $request = new Request("https://api.twitter.com/2/tweets", "POST");
-        $request->setBody($body);
+        $request->setBody(\json_encode($params));
         $request->setHeader("authorization", $this->signRequest($request, $params));
 
         return call(function () use ($request) {
