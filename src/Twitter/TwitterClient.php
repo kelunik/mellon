@@ -69,6 +69,7 @@ final class TwitterClient
         $request = new Request("https://api.twitter.com/2/tweets", "POST");
         $request->setBody(\json_encode($params));
         $request->setHeader("authorization", $this->signRequest($request));
+        $request->setHeader('content-type', 'application/json');
 
         return call(function () use ($request) {
             /** @var Response $response */
