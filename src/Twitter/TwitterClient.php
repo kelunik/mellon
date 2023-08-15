@@ -61,14 +61,15 @@ final class TwitterClient
     {
         $params = [
             "status" => $text,
-            "enable_dm_commands" => "false",
-            "media_ids" => implode(",", $mediaIds),
+            "media" => [
+                "media_ids" => $mediaIds,
+            ],
         ];
 
         $body = new FormBody;
         $body->addFields($params);
 
-        $request = new Request("https://api.twitter.com/1.1/statuses/update.json", "POST");
+        $request = new Request("https://api.twitter.com/2/tweets", "POST");
         $request->setBody($body);
         $request->setHeader("authorization", $this->signRequest($request, $params));
 
