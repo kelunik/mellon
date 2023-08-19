@@ -53,14 +53,14 @@ final class TwitterClient
             $body = yield $response->getBody()->buffer();
             $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
 
-            return $data["media_id"];
+            return $data["media_id_string"];
         });
     }
 
     public function tweet(string $text, array $mediaIds = []): Promise
     {
         $params = [
-            "status" => $text,
+            "text" => $text,
             "media" => [
                 "media_ids" => $mediaIds,
             ],
