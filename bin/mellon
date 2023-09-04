@@ -1,23 +1,21 @@
 #!/usr/bin/env php
 <?php
 
+use Amp\CompositeException;
 use Amp\File;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
-use Amp\Loop;
-use Amp\MultiReasonException;
 use Kelunik\Mellon\Github\GithubEventWatcher;
 use Kelunik\Mellon\Storage\FileKeyValueStorage;
 use Kelunik\Mellon\Storage\PrefixKeyValueStorage;
-use Kelunik\Mellon\Telegram\RequestHandler;
 use Kelunik\Mellon\Telegram\TelegramClient;
 use Kelunik\Mellon\Twitter\TwitterClient;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\LogLevel;
+use Revolt\EventLoop;
 use Symfony\Component\Yaml\Yaml;
-use unreal4u\TelegramAPI\TgLog;
 use function Amp\ByteStream\getStderr;
 
 require __DIR__ . "/../vendor/autoload.php";
@@ -42,15 +40,15 @@ $shutdownHandler = static function (string $watcherId, int $signal) use ($logger
 
     $logger->notice("Caught $signalName ($signal), stopping the event loop...");
 
-    Loop::stop();
+    EventLoop::getDriver()->stop();
 };
 
 // It's important to catch SIGINT / SIGTERM, so destructors can run
-Loop::onSignal(\SIGINT, $shutdownHandler);
-Loop::onSignal(\SIGTERM, $shutdownHandler);
+EventLoop::onSignal(\SIGINT, $shutdownHandler);
+EventLoop::onSignal(\SIGTERM, $shutdownHandler);
 
 // TODO: Properly log further exceptions as root causes of the first one.
-Loop::setErrorHandler(static function (\Throwable $error) use ($logger) {
+EventLoop::setErrorHandler(static function (\Throwable $error) use ($logger) {
     $errors = [$error];
 
     while ($error = \array_shift($errors)) {
@@ -58,7 +56,7 @@ Loop::setErrorHandler(static function (\Throwable $error) use ($logger) {
             'exception' => $error,
         ]);
 
-        if ($error instanceof MultiReasonException) {
+        if ($error instanceof CompositeException) {
             $errors = \array_merge($errors, $error->getReasons());
         } elseif ($error->getPrevious()) {
             $errors[] = $error->getPrevious();
@@ -66,78 +64,86 @@ Loop::setErrorHandler(static function (\Throwable $error) use ($logger) {
     }
 });
 
-Loop::run(static function () use ($logger) {
-    $logger->notice("Starting up...");
+$logger->notice("Starting up...");
 
-    $configPath = __DIR__ . "/../config.yml";
-    $configContents = yield File\get($configPath);
+$configPath = __DIR__ . "/../config.yml";
+$configContents = File\read($configPath);
 
-    $logger->notice("Successfully loaded configuration file.");
+$logger->notice("Successfully loaded configuration file.");
 
-    $config = Yaml::parse($configContents);
+$config = Yaml::parse($configContents);
 
-    $logger->notice("Successfully parsed loaded configuration.");
+$logger->notice("Successfully parsed loaded configuration.");
 
-    $httpClient = HttpClientBuilder::buildDefault();
+$httpClient = HttpClientBuilder::buildDefault();
 
-    $defaultTelegramClient = new TelegramClient(
-        new TgLog($config['telegram']['auth'], new RequestHandler($httpClient), $logger),
-        $config['telegram']['chat']
-    );
+$defaultTelegramClient = new TelegramClient(
+    $httpClient,
+    $logger,
+    $config['telegram']['auth'],
+    $config['telegram']['chat'],
+);
 
-    $defaultTelegramClient->disableUrlPreview();
+$defaultTelegramClient->disableUrlPreview();
 
-    $releaseTelegramClient = new TelegramClient(
-        new TgLog($config['telegram']['auth'], new RequestHandler($httpClient), $logger),
-        $config['telegram']['release_chat'] ?? $config['telegram']['chat']
-    );
+$releaseTelegramClient = new TelegramClient(
+    $httpClient,
+    $logger,
+    $config['telegram']['auth'],
+    $config['telegram']['release_chat'] ?? $config['telegram']['chat']
+);
 
-    $twitterClient = new TwitterClient($httpClient, $config['twitter']['consumerKey'],
-        $config['twitter']['consumerSecret'], $config['twitter']['accessToken'],
-        $config['twitter']['accessTokenSecret']);
+$twitterClient = new TwitterClient(
+    $httpClient,
+    $config['twitter']['consumerKey'],
+    $config['twitter']['consumerSecret'],
+    $config['twitter']['accessToken'],
+    $config['twitter']['accessTokenSecret']
+);
 
-    $storage = new FileKeyValueStorage(__DIR__ . "/../data/mellon.json");
+$storage = new FileKeyValueStorage(__DIR__ . "/../data/mellon.json");
 
-    $plugins = [];
-    $plugins[] = new GithubEventWatcher(
-        $logger->withName('github.watch.amphp'),
-        $httpClient,
-        $defaultTelegramClient,
-        $releaseTelegramClient,
-        $twitterClient,
-        new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.amphp.'),
-        5,
-        $config['github']['clientId'],
-        $config['github']['clientSecret'],
-        'amphp'
-    );
+$plugins = [];
+$plugins[] = new GithubEventWatcher(
+    $logger->withName('github.watch.amphp'),
+    $httpClient,
+    $defaultTelegramClient,
+    $releaseTelegramClient,
+    $twitterClient,
+    new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.amphp.'),
+    5,
+    $config['github']['clientId'],
+    $config['github']['clientSecret'],
+    'amphp'
+);
 
-    $plugins[] = new GithubEventWatcher(
-        $logger->withName('github.watch.reactphp'),
-        $httpClient,
-        $defaultTelegramClient,
-        $defaultTelegramClient,
-        null,
-        new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.reactphp.'),
-        5,
-        $config['github']['clientId'],
-        $config['github']['clientSecret'],
-        'reactphp'
-    );
+$plugins[] = new GithubEventWatcher(
+    $logger->withName('github.watch.reactphp'),
+    $httpClient,
+    $defaultTelegramClient,
+    $defaultTelegramClient,
+    null,
+    new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.reactphp.'),
+    5,
+    $config['github']['clientId'],
+    $config['github']['clientSecret'],
+    'reactphp'
+);
 
-    $plugins[] = new GithubEventWatcher(
-        $logger->withName('github.watch.revoltphp'),
-        $httpClient,
-        $defaultTelegramClient,
-        $defaultTelegramClient,
-        null,
-        new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.revoltphp.'),
-        5,
-        $config['github']['clientId'],
-        $config['github']['clientSecret'],
-        'revoltphp'
-    );
-});
+$plugins[] = new GithubEventWatcher(
+    $logger->withName('github.watch.revoltphp'),
+    $httpClient,
+    $defaultTelegramClient,
+    $defaultTelegramClient,
+    null,
+    new PrefixKeyValueStorage($storage, 'kelunik.mellon.plugins.githubevents.last-id.revoltphp.'),
+    5,
+    $config['github']['clientId'],
+    $config['github']['clientSecret'],
+    'revoltphp'
+);
+
+EventLoop::run();
 
 $logger->notice("Event loop stopped, goodbye!");
 

@@ -5,16 +5,15 @@ namespace Kelunik\Mellon\Github;
 use Amp\File;
 use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\Request;
-use Amp\Http\Client\Response;
-use Amp\Loop;
 use Amp\Process\Process;
 use Kelunik\Mellon\Storage\KeyValueStorage;
 use Kelunik\Mellon\Telegram\TelegramClient;
 use Kelunik\Mellon\Twitter\TwitterClient;
 use Psr\Log\LoggerInterface as PsrLogger;
+use Revolt\EventLoop;
+use function Amp\async;
 use function Amp\ByteStream\buffer;
-use function Amp\call;
-use function Amp\Promise\rethrow;
+use function Amp\Future\await;
 
 class GithubEventWatcher
 {
@@ -54,7 +53,7 @@ class GithubEventWatcher
         string $githubClientId,
         string $githubClientSecret
     ): void {
-        Loop::repeat($this->interval * 60 * 1000,
+        EventLoop::repeat($this->interval * 60,
             function () use ($githubOrganization, $githubClientId, $githubClientSecret) {
                 $this->logger->debug("Requesting recent events for $githubOrganization from api.github.com");
 
@@ -62,9 +61,8 @@ class GithubEventWatcher
                 $request = new Request("https://api.github.com/orgs/" . \rawurlencode($githubOrganization) . "/events");
                 $request->setHeader('authorization', $auth);
 
-                /** @var Response $response */
-                $response = yield $this->httpClient->request($request);
-                $body = yield $response->getBody()->buffer();
+                $response = $this->httpClient->request($request);
+                $body = $response->getBody()->buffer();
 
                 if ($response->getStatus() !== 200) {
                     $this->logger->warning("Received invalid response from api.github.com: " . $response->getStatus());
@@ -77,7 +75,7 @@ class GithubEventWatcher
                 ]);
 
                 $events = \array_reverse(\json_decode($body, true, 512, \JSON_THROW_ON_ERROR));
-                $lastId = $beforeId = $this->storage->get("last-id.{$githubOrganization}") ?? 0;
+                $lastId = $beforeId = $this->storage->get("last-id.$githubOrganization") ?? 0;
 
                 foreach ($events as $event) {
                     if ($event["id"] <= $lastId) {
@@ -99,11 +97,10 @@ class GithubEventWatcher
                             $tagName = $event['payload']['release']['tag_name'];
                             $composerUrl = "https://raw.githubusercontent.com/$repo/$tagName/composer.json";
 
-                            /** @var Response $response */
-                            $composerResponse = yield $this->httpClient->request(new Request($composerUrl));
-                            $composerBody = yield $composerResponse->getBody()->buffer();
+                            $composerResponse = $this->httpClient->request(new Request($composerUrl));
+                            $composerBody = $composerResponse->getBody()->buffer();
 
-                            yield $this->releaseTelegramClient->sendMessage(\sprintf(
+                            $this->releaseTelegramClient->sendMessage(\sprintf(
                                 "%s released %s %s. %s",
                                 $event["actor"]["login"],
                                 $repo,
@@ -112,7 +109,7 @@ class GithubEventWatcher
                             ));
 
                             if ($this->twitterClient !== null && \strtok($event["repo"]["name"], "/") === "amphp") {
-                                rethrow(call(function () use ($event, $composerBody) {
+                                async(function () use ($event, $composerBody) {
                                     if ($event["repo"]["name"] === "amphp/windows-process-wrapper") {
                                         return; // ignore releases, as it's only bundled and not a separate package really.
                                     }
@@ -128,31 +125,29 @@ class GithubEventWatcher
                                         || \strpos($composerBody, 'amphp/socket": "^2') !== false
                                         || \strpos($composerBody, 'amphp/http-server": "^3') !== false;
 
-                                    $process = new Process([
+                                    $process = Process::start([
                                         __DIR__ . "/../../bin/generate-release",
                                         $v3 ? 'v3' : 'v2',
                                         $event["repo"]["name"],
                                         $event["payload"]["release"]["tag_name"],
                                     ]);
 
-                                    yield $process->start();
+                                    [$png, $errors] = await([
+                                        async(fn () => buffer($process->getStdout())),
+                                        async(fn () => buffer($process->getStderr())),
+                                    ]);
 
-                                    [$png, $errors] = yield [
-                                        buffer($process->getStdout()),
-                                        buffer($process->getStderr()),
-                                    ];
-
-                                    $status = yield $process->join();
+                                    $status = $process->join();
 
                                     if ($status !== 0) {
-                                        throw new \Exception("Release sub-process failed ({$status}): {$errors}");
+                                        throw new \Exception("Release sub-process failed ($status): $errors");
                                     }
 
-                                    yield File\put($imgPath, $png);
+                                    File\write($imgPath, $png);
 
-                                    $mediaId = yield $this->twitterClient->uploadImage($imgPath);
+                                    $mediaId = $this->twitterClient->uploadImage($imgPath);
 
-                                    yield $this->twitterClient->tweet(\sprintf(
+                                    $this->twitterClient->tweet(\sprintf(
                                         "%s %s released. %s",
                                         $event["repo"]["name"],
                                         $event["payload"]["release"]["tag_name"],
@@ -161,12 +156,12 @@ class GithubEventWatcher
                                         $mediaId,
                                     ]);
 
-                                    yield File\unlink($imgPath);
-                                }));
+                                    File\deleteFile($imgPath);
+                                });
                             }
                         }
                     } elseif ($event["type"] === "IssuesEvent") {
-                        yield $this->defaultTelegramClient->sendMessage(\sprintf(
+                        $this->defaultTelegramClient->sendMessage(\sprintf(
                             "%s %s %s (%s).",
                             $event["actor"]["login"],
                             $event["payload"]["action"],
@@ -179,7 +174,7 @@ class GithubEventWatcher
                             $action = 'merged';
                         }
 
-                        yield $this->defaultTelegramClient->sendMessage(\sprintf(
+                        $this->defaultTelegramClient->sendMessage(\sprintf(
                             "%s %s %s (%s).",
                             $event["actor"]["login"],
                             $action,
@@ -189,7 +184,7 @@ class GithubEventWatcher
                     }
                 }
 
-                $this->storage->set("last-id.{$githubOrganization}", $lastId);
+                $this->storage->set("last-id.$githubOrganization", $lastId);
             });
     }
 }

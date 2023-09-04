@@ -2,14 +2,11 @@
 
 namespace Kelunik\Mellon\Twitter;
 
-use Amp\Http\Client\Body\FormBody;
+use Amp\Http\Client\Form;
 use Amp\Http\Client\HttpClient;
 use Amp\Http\Client\HttpException;
 use Amp\Http\Client\Request;
-use Amp\Http\Client\Response;
-use Amp\Promise;
-use League\Uri\Parser\QueryString;
-use function Amp\call;
+use League\Uri\QueryString;
 
 final class TwitterClient
 {
@@ -33,31 +30,27 @@ final class TwitterClient
         $this->accessTokenSecret = $accessTokenSecret;
     }
 
-    public function uploadImage(string $path): Promise
+    public function uploadImage(string $path): string
     {
-        $body = new FormBody;
+        $body = new Form;
         $body->addFile("media", $path);
 
         $request = new Request("https://upload.twitter.com/1.1/media/upload.json", "POST");
         $request->setBody($body);
         $request->setHeader("authorization", $this->signRequest($request));
 
-        return call(function () use ($request) {
-            /** @var Response $response */
-            $response = yield $this->httpClient->request($request);
+        $response = $this->httpClient->request($request);
 
-            if ($response->getStatus() !== 200) {
-                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody()->buffer());
-            }
+        if ($response->getStatus() !== 200) {
+            throw new HttpException("Invalid response: " . $response->getStatus() . " - " . $response->getBody()->buffer());
+        }
 
-            $body = yield $response->getBody()->buffer();
-            $data = \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
+        $data = \json_decode($response->getBody()->buffer(), true, 512, \JSON_THROW_ON_ERROR);
 
-            return $data["media_id_string"];
-        });
+        return $data["media_id_string"];
     }
 
-    public function tweet(string $text, array $mediaIds = []): Promise
+    public function tweet(string $text, array $mediaIds = []): array
     {
         $params = [
             "text" => $text,
@@ -71,63 +64,16 @@ final class TwitterClient
         $request->setHeader("authorization", $this->signRequest($request));
         $request->setHeader('content-type', 'application/json');
 
-        return call(function () use ($request) {
-            /** @var Response $response */
-            $response = yield $this->httpClient->request($request);
+        $response = $this->httpClient->request($request);
 
-            if ($response->getStatus() !== 200) {
-                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody()->buffer());
-            }
+        if ($response->getStatus() !== 200) {
+            throw new HttpException("Invalid response: " . $response->getStatus() . " - " . $response->getBody()->buffer());
+        }
 
-            $body = yield $response->getBody()->buffer();
-
-            return \json_decode($body, true, 512, \JSON_THROW_ON_ERROR);
-        });
+        return \json_decode($response->getBody()->buffer(), true, 512, \JSON_THROW_ON_ERROR);
     }
 
-    public function requestAccessToken(): Promise
-    {
-        $request = new Request("https://api.twitter.com/oauth/request_token", "POST");
-        $request->setHeader("authorization", $this->signRequest($request));
-
-        return call(function () use ($request) {
-            /** @var Response $response */
-            $response = yield $this->httpClient->request($request);
-
-            if ($response->getStatus() !== 200) {
-                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody()->buffer());
-            }
-
-            return yield $response->getBody()->buffer();
-        });
-    }
-
-    public function verifyAccessToken(string $verifier): Promise
-    {
-        $params = [
-            "oauth_verifier" => $verifier,
-        ];
-
-        $body = new FormBody;
-        $body->addFields($params);
-
-        $request = new Request("https://api.twitter.com/oauth/access_token", "POST");
-        $request->setBody($body);
-        $request->setHeader("authorization", $this->signRequest($request, $params));
-
-        return call(function () use ($request) {
-            /** @var Response $response */
-            $response = yield $this->httpClient->request($request);
-
-            if ($response->getStatus() !== 200) {
-                throw new HttpException("Invalid response: " . $response->getStatus() . " - " . yield $response->getBody()->buffer());
-            }
-
-            return yield $response->getBody()->buffer();
-        });
-    }
-
-    private function signRequest(Request $request, array $additionalParams = []): string
+    private function signRequest(Request $request): string
     {
         /** @noinspection PhpUnhandledExceptionInspection */
         $nonce = \bin2hex(\random_bytes(16));
@@ -153,7 +99,7 @@ final class TwitterClient
         $queryParams = QueryString::extract($uri->getQuery());
         $encodedParams = [];
 
-        foreach (\array_merge($params, $queryParams, $additionalParams) as $key => $value) {
+        foreach ($queryParams as $key => $value) {
             $encodedParams[\rawurlencode($key)] = \rawurlencode(\is_array($value) ? $value[0] : $value);
         }
 

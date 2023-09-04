@@ -2,34 +2,42 @@
 
 namespace Kelunik\Mellon\Telegram;
 
-use Amp\Promise;
-use unreal4u\TelegramAPI\Telegram\Methods\SendMessage;
-use unreal4u\TelegramAPI\TgLog;
-use function Amp\call;
+use Amp\Http\Client\HttpClient;
+use Amp\Http\Client\Request;
+use Psr\Log\LoggerInterface;
+use function json_encode;
 
 final class TelegramClient
 {
+    private HttpClient $httpClient;
+    private LoggerInterface $logger;
+    private string $auth;
     private string $chatId;
-    private TgLog $telegram;
     private bool $disableUrlPreview = false;
 
-    public function __construct(TgLog $telegram, string $chatId)
+    public function __construct(HttpClient $httpClient, LoggerInterface $logger, string $auth, string $chatId)
     {
-        $this->telegram = $telegram;
+        $this->httpClient = $httpClient;
+        $this->logger = $logger;
+        $this->auth = $auth;
         $this->chatId = $chatId;
     }
 
-    public function sendMessage(string $text): Promise
+    public function sendMessage(string $text): void
     {
-        return call(function () use ($text) {
-            $request = new SendMessage;
-            $request->chat_id = $this->chatId;
-            $request->text = $text;
-            $request->disable_web_page_preview = $this->disableUrlPreview;
-            $request->disable_notification = true;
+        $request = new Request('https://api.telegram.org/bot' . $this->auth . '/sendMessage', 'POST');
+        $request->setBody(json_encode([
+            'chat_id' => $this->chatId,
+            'text' => $text,
+            'disable_web_page_preview' => $this->disableUrlPreview,
+            'disable_notification' => true,
+        ]));
 
-            yield $this->telegram->performApiRequest($request);
-        });
+        $response = $this->httpClient->request($request);
+        if (!$response->isSuccessful()) {
+            $this->logger->error('Invalid response: ' . $response->getStatus());
+            $this->logger->error($response->getBody()->buffer());
+        }
     }
 
     public function disableUrlPreview(): void

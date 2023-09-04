@@ -18,17 +18,13 @@
         "ext-gd": "*",
         "ext-json": "*",
         "ext-pcntl": "*",
-        "amphp/amp": "^2.4.4",
-        "amphp/file": "^1.0",
-        "amphp/http-client": "^4.3.1",
-        "amphp/log": "^1.1",
-        "amphp/react-adapter": "^1.1",
-        "league/uri-query-parser": "^1.0",
-        "symfony/yaml": "^5",
-        "unreal4u/telegram-api": "^3.5"
+        "amphp/amp": "^3",
+        "amphp/file": "^3",
+        "amphp/http-client": "^5-beta",
+        "amphp/log": "^2",
+        "symfony/yaml": "^5"
     },
     "replace": {
-        "amphp/artax": "3.0.0",
         "paragonie/random_compat": "1.2.2"
     }
 }
