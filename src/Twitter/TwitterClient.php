@@ -40,9 +40,8 @@ final class TwitterClient
         $request->setHeader("authorization", $this->signRequest($request));
 
         $response = $this->httpClient->request($request);
-
-        if ($response->getStatus() !== 200) {
-            throw new HttpException("Invalid response: " . $response->getStatus() . " - " . $response->getBody()->buffer());
+        if (!$response->isSuccessful()) {
+            throw new HttpException("Invalid response: " . $response->getStatus() . " - " . $response->getRequest()->getUri() . " - " . $response->getBody()->buffer());
         }
 
         $data = \json_decode($response->getBody()->buffer(), true, 512, \JSON_THROW_ON_ERROR);
@@ -65,9 +64,8 @@ final class TwitterClient
         $request->setHeader('content-type', 'application/json');
 
         $response = $this->httpClient->request($request);
-
-        if ($response->getStatus() !== 200) {
-            throw new HttpException("Invalid response: " . $response->getStatus() . " - " . $response->getBody()->buffer());
+        if (!$response->isSuccessful()) {
+            throw new HttpException("Invalid response: " . $response->getStatus() . " - " . $response->getRequest()->getUri() . " - " . $response->getBody()->buffer());
         }
 
         return \json_decode($response->getBody()->buffer(), true, 512, \JSON_THROW_ON_ERROR);
@@ -99,7 +97,7 @@ final class TwitterClient
         $queryParams = QueryString::extract($uri->getQuery());
         $encodedParams = [];
 
-        foreach ($queryParams as $key => $value) {
+        foreach (\array_merge($params, $queryParams) as $key => $value) {
             $encodedParams[\rawurlencode($key)] = \rawurlencode(\is_array($value) ? $value[0] : $value);
         }
 
