@@ -25,6 +25,8 @@ final class TelegramClient
 
     public function sendMessage(string $text): void
     {
+        $this->logger->info('Sending message: ' . $text);
+
         $request = new Request('https://api.telegram.org/bot' . $this->auth . '/sendMessage', 'POST');
         $request->setBody(json_encode([
             'chat_id' => $this->chatId,
